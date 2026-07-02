@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "build": "npx prisma generate && npx prisma db push",
+    "db:seed": "node -e \"const s=require('./src/utils/seedData'); s().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\"",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
