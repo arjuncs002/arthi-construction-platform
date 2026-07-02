@@ -362,6 +362,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ============================================================
   //  NOTIFICATIONS & ANNOUNCEMENTS
   // ============================================================
+  let lastNotificationIds = new Set();
+
   async function loadNotifications() {
     try {
       const notifs = await API.getNotifications();
@@ -372,6 +374,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderNotifications(notifs) {
+    const currentIds = new Set(notifs.map(n => n.id));
+    const newNotifs = notifs.filter(n => lastNotificationIds.size > 0 && !lastNotificationIds.has(n.id) && !n.read);
+    
+    // Update cache
+    lastNotificationIds = currentIds;
+
+    // Show toast for new notifications
+    if (newNotifs.length > 0) {
+      newNotifs.forEach(n => {
+        showToast(n.title, 'info', '🔔');
+      });
+    }
+
     // 1. Top bar indicator dot
     const dot = document.querySelector('.notif-btn .dot');
     const unreadCount = notifs.filter(n => !n.read).length;
@@ -452,12 +467,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Poll notifications every 5 seconds for live status
+  setInterval(loadNotifications, 5000);
+
   // ============================================================
   //  REAL-TIME CHAT
   // ============================================================
   const chatInput    = document.getElementById('chatInput');
   const chatSend     = document.getElementById('chatSend');
   const chatMessages = document.getElementById('chatMessages');
+  let lastMessageCount = 0;
 
   // Contact list selection
   document.querySelectorAll('.chat-contact').forEach(btn => {
@@ -472,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (statusText) {
         statusText.nextElementSibling.lastElementChild.textContent = `${role} · Active`;
       }
+      lastMessageCount = 0; // Reset count so it forces re-render
       loadChat();
     });
   });
@@ -490,6 +510,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const messages = await API.getChatHistory(profile.projectId);
+      if (messages.length === lastMessageCount) return; // skip redundant render
+      lastMessageCount = messages.length;
+
       chatMessages.innerHTML = '';
       messages.forEach(msg => {
         appendMessageUI(msg.content, msg.senderId === profile.id, msg.sender.avatar || 'VR', msg.timestamp);
@@ -499,6 +522,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Failed to load chat history:', err);
     }
   }
+
+  // Poll chat history every 2.5 seconds for instant fallback synchronization
+  setInterval(() => {
+    const chatPanel = document.getElementById('panel-chat');
+    if (chatPanel && chatPanel.classList.contains('active')) {
+      loadChat();
+    }
+  }, 2500);
 
   function appendMessageUI(text, isMe, avatarInitial, timestamp) {
     const row = document.createElement('div');

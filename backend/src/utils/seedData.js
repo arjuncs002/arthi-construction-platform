@@ -4,12 +4,31 @@ const prisma = require('../config/db');
 const seedDatabase = async () => {
   try {
     const userCount = await prisma.user.count();
-    if (userCount > 0) {
+    const shouldForce = process.env.FORCE_SEED === 'true';
+    if (userCount > 0 && !shouldForce) {
       console.log('🌱 Database already has users. Skipping auto-seeding.');
       return;
     }
 
-    console.log('🌱 Database is empty. Starting auto-seeding...');
+    if (shouldForce) {
+      console.log('🗑️ FORCE_SEED is true. Wiping database tables...');
+      await prisma.qRCode.deleteMany();
+      await prisma.notification.deleteMany();
+      await prisma.message.deleteMany();
+      await prisma.siteVisit.deleteMany();
+      await prisma.request.deleteMany();
+      await prisma.payment.deleteMany();
+      await prisma.document.deleteMany();
+      await prisma.galleryItem.deleteMany();
+      await prisma.constructionUpdate.deleteMany();
+      await prisma.client.deleteMany();
+      await prisma.supervisor.deleteMany();
+      await prisma.user.deleteMany();
+      await prisma.project.deleteMany();
+      console.log('✅ Database wiped successfully.');
+    }
+
+    console.log('🌱 Starting auto-seeding...');
 
     const hashedSuperPass = await bcrypt.hash('SUPERVISOR', 10);
     const hashedClientPass = await bcrypt.hash('WEMAKESOLUTIONS', 10);
@@ -629,46 +648,106 @@ const seedDatabase = async () => {
     console.log('✅ Notifications seeded.');
 
     // ============================================================
-    // 11. DEMO CHAT MESSAGES (JENSON <-> SUPERVISOR)
+    // 11. DEMO CHAT MESSAGES FOR ALL CLIENTS
     // ============================================================
-    const jensonId = jensonUser.id;
     const supervisorId = supervisorUser.id;
-    const projectId = createdProjects[0].id;
 
-    const chatMessages = [
-      { senderId: supervisorId, receiverId: jensonId, content: 'Good morning Mr. Jenson! I wanted to update you — the structural work on all 18 floors is now complete. The project is progressing well.', hoursAgo: 168 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Good morning Vignesh! That is great news. How is the brickwork going?', hoursAgo: 167 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Brickwork is 80% done. Floors 1 to 14 are complete. We should be done with all floors by end of next month.', hoursAgo: 167 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Has the roofing work been completed?', hoursAgo: 96 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Yes! Roofing was completed last week. We have started the waterproofing treatment. Painting begins next Monday.', hoursAgo: 95 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Excellent. When can I schedule my next site visit?', hoursAgo: 72 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Saturday at 10:30 AM is available for your visit. I will personally take you through the floors and show the progress.', hoursAgo: 71 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Perfect. Saturday at 10:30 AM works for me. I\'ll be bringing my wife as well.', hoursAgo: 70 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Sure, no problem! Helmets and safety gear will be provided at site. Please wear closed-toe shoes.', hoursAgo: 69 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Can you upload the latest staircase and lobby photos? I want to show my wife the progress.', hoursAgo: 48 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Sure! I have already uploaded today\'s site images to your gallery — 6 new photos including the staircase, lobby area and the view from floor 12.', hoursAgo: 47 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Received them. The staircase looks great! The marble finishing is exactly what we wanted.', hoursAgo: 46 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Thank you! We are putting in extra care to ensure the finish quality is top-notch throughout. Your flat on floor 7B will have the best view of the project!', hoursAgo: 45 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'One more thing — I raised a request for wooden flooring in the living room. Any update on that?', hoursAgo: 24 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'I have received the request and shared it with the project team for feasibility review. I will update you within 3 working days.', hoursAgo: 23 },
-      { senderId: jensonId, receiverId: supervisorId, content: 'Great, thank you for the quick response!', hoursAgo: 22 },
-      { senderId: supervisorId, receiverId: jensonId, content: 'Always! Feel free to reach out anytime. See you Saturday morning!', hoursAgo: 21 }
+    const demoChats = [
+      // Client 0: Jenson (Project 0)
+      {
+        clientUserId: createdClients[0].user.id,
+        projectId: createdProjects[0].id,
+        messages: [
+          { senderId: supervisorId, content: 'Good morning Mr. Jenson! I wanted to update you — the structural work on all 18 floors is now complete. The project is progressing well.', hoursAgo: 168 },
+          { senderId: createdClients[0].user.id, content: 'Good morning Vignesh! That is great news. How is the brickwork going?', hoursAgo: 167 },
+          { senderId: supervisorId, content: 'Brickwork is 80% done. Floors 1 to 14 are complete. We should be done with all floors by end of next month.', hoursAgo: 167 },
+          { senderId: createdClients[0].user.id, content: 'Has the roofing work been completed?', hoursAgo: 96 },
+          { senderId: supervisorId, content: 'Yes! Roofing was completed last week. We have started the waterproofing treatment. Painting begins next Monday.', hoursAgo: 95 },
+          { senderId: createdClients[0].user.id, content: 'Excellent. When can I schedule my next site visit?', hoursAgo: 72 },
+          { senderId: supervisorId, content: 'Saturday at 10:30 AM is available for your visit. I will personally take you through the floors and show the progress.', hoursAgo: 71 },
+          { senderId: createdClients[0].user.id, content: 'Perfect. Saturday at 10:30 AM works for me. I\'ll be bringing my wife as well.', hoursAgo: 70 },
+          { senderId: supervisorId, content: 'Sure, no problem! Helmets and safety gear will be provided at site. Please wear closed-toe shoes.', hoursAgo: 69 },
+          { senderId: createdClients[0].user.id, content: 'Can you upload the latest staircase and lobby photos? I want to show my wife the progress.', hoursAgo: 48 },
+          { senderId: supervisorId, content: 'Sure! I have already uploaded today\'s site images to your gallery — 6 new photos including the staircase, lobby area and the view from floor 12.', hoursAgo: 47 },
+          { senderId: createdClients[0].user.id, content: 'Received them. The staircase looks great! The marble finishing is exactly what we wanted.', hoursAgo: 46 },
+          { senderId: supervisorId, content: 'Thank you! We are putting in extra care to ensure the finish quality is top-notch throughout. Your flat on floor 7B will have the best view of the project!', hoursAgo: 45 },
+          { senderId: createdClients[0].user.id, content: 'One more thing — I raised a request for wooden flooring in the living room. Any update on that?', hoursAgo: 24 },
+          { senderId: supervisorId, content: 'I have received the request and shared it with the project team for feasibility review. I will update you within 3 working days.', hoursAgo: 23 },
+          { senderId: createdClients[0].user.id, content: 'Great, thank you for the quick response!', hoursAgo: 22 },
+          { senderId: supervisorId, content: 'Always! Feel free to reach out anytime. See you Saturday morning!', hoursAgo: 21 }
+        ]
+      },
+      // Client 1: Sreekumar (Project 1)
+      {
+        clientUserId: createdClients[1].user.id,
+        projectId: createdProjects[1].id,
+        messages: [
+          { senderId: createdClients[1].user.id, content: 'Hi Vignesh, hope you\'re doing well. Is there any update on the villa foundation work?', hoursAgo: 72 },
+          { senderId: supervisorId, content: 'Good morning Sreekumar. Yes, excavation for the first 24 villas is 50% complete. Piling works will start next week.', hoursAgo: 71 },
+          { senderId: createdClients[1].user.id, content: 'Great. Can we choose the paint scheme for our villa exterior?', hoursAgo: 48 },
+          { senderId: supervisorId, content: 'Absolutely. I will share the color catalog with you when the brickwork begins. You will have 3 luxury options to select from.', hoursAgo: 47 },
+          { senderId: createdClients[1].user.id, content: 'Sounds good. Thank you.', hoursAgo: 24 },
+          { senderId: supervisorId, content: 'My pleasure! I will keep you updated on the progress.', hoursAgo: 23 }
+        ]
+      },
+      // Client 2: Fathima (Project 2)
+      {
+        clientUserId: createdClients[2].user.id,
+        projectId: createdProjects[2].id,
+        messages: [
+          { senderId: createdClients[2].user.id, content: 'Hello Vignesh, I saw that the plastering is progressing. Is the tiling on schedule?', hoursAgo: 96 },
+          { senderId: supervisorId, content: 'Hi Fathima. Yes, internal plastering is complete. We have finished tiling on floors 1–8 in Tower A. Tiling in Tower B is starting next week.', hoursAgo: 95 },
+          { senderId: createdClients[2].user.id, content: 'Excellent. Has the sea-view balcony railing been fitted?', hoursAgo: 72 },
+          { senderId: supervisorId, content: 'We are installing the double-glazed sliding doors and safety glass railings this week. I will upload photos as soon as they are fitted.', hoursAgo: 71 },
+          { senderId: createdClients[2].user.id, content: 'Perfect, looking forward to the photos.', hoursAgo: 48 },
+          { senderId: supervisorId, content: 'Uploaded! Check your gallery for 3 new photos of the sea-view balcony railing.', hoursAgo: 47 }
+        ]
+      },
+      // Client 3: Thomas (Project 3)
+      {
+        clientUserId: createdClients[3].user.id,
+        projectId: createdProjects[3].id,
+        messages: [
+          { senderId: createdClients[3].user.id, content: 'Hi Vignesh, now that the project is completed, is the villa ready for hand-over registration?', hoursAgo: 120 },
+          { senderId: supervisorId, content: 'Good morning Thomas. Yes, all 36 villas are fully completed. The final occupancy certificate (OC) and documents have been uploaded to your portal.', hoursAgo: 119 },
+          { senderId: createdClients[3].user.id, content: 'Perfect. We are planning our housewarming next month.', hoursAgo: 72 },
+          { senderId: supervisorId, content: 'Congratulations! The keys are ready at the site office. Please bring the signed handover receipt from your portal.', hoursAgo: 71 },
+          { senderId: createdClients[3].user.id, content: 'Thanks, will do.', hoursAgo: 48 }
+        ]
+      },
+      // Client 4: Anitha (Project 4)
+      {
+        clientUserId: createdClients[4].user.id,
+        projectId: createdProjects[4].id,
+        messages: [
+          { senderId: createdClients[4].user.id, content: 'Hello Vignesh, since this is a pre-launch phase, has site clearance started?', hoursAgo: 96 },
+          { senderId: supervisorId, content: 'Hi Anitha. Soil testing and environmental clearance are done. Site clearance is now 60% complete.', hoursAgo: 95 },
+          { senderId: createdClients[4].user.id, content: 'Wonderful. When do we select the bamboo flooring options?', hoursAgo: 72 },
+          { senderId: supervisorId, content: 'We will invite all booked clients to the sample flat choice in early 2026 once structural piling is complete.', hoursAgo: 71 },
+          { senderId: createdClients[4].user.id, content: 'Excellent. Keep up the green work!', hoursAgo: 48 },
+          { senderId: supervisorId, content: 'Thank you Anitha. We are aiming for a GRIHA 4-star gold rating!', hoursAgo: 47 }
+        ]
+      }
     ];
 
-    for (const msg of chatMessages) {
-      const ts = new Date();
-      ts.setHours(ts.getHours() - msg.hoursAgo);
-      await prisma.message.create({
-        data: {
-          projectId,
-          senderId: msg.senderId,
-          receiverId: msg.receiverId,
-          content: msg.content,
-          timestamp: ts
-        }
-      });
+    for (const chat of demoChats) {
+      for (const msg of chat.messages) {
+        const ts = new Date();
+        ts.setHours(ts.getHours() - msg.hoursAgo);
+        const receiverId = msg.senderId === supervisorId ? chat.clientUserId : supervisorId;
+
+        await prisma.message.create({
+          data: {
+            projectId: chat.projectId,
+            senderId: msg.senderId,
+            receiverId,
+            content: msg.content,
+            timestamp: ts
+          }
+        });
+      }
     }
-    console.log('✅ Chat messages seeded.');
+    console.log('✅ Distinct client chat messages seeded.');
 
     // ============================================================
     // 12. QR CODES

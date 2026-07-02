@@ -802,8 +802,7 @@ async function submitProgressUpdate() {
   const note = document.getElementById('upNote').value.trim();
   if (!stage || isNaN(pct)) { toast('Please fill in stage and percentage', 'error'); return; }
   if (!currentProjectId) return;
-  try {
-    await api(`/updates/${currentProjectId}`, {
+await api(`/updates/${currentProjectId}`, {
       method: 'POST',
       body: JSON.stringify({ stage, percentage: pct, note })
     });
@@ -839,14 +838,17 @@ async function submitOverallProgress() {
 // CHAT PANEL
 // ════════════════════════════════════════
 let chatClientUserId = null;
+let chatClientId = null;
 let chatProjectId = null;
 let socket = null;
 let unreadCount = 0;
 let projectUnreads = {}; // projectId -> count
+let localMessageCount = {}; // projectId -> count of messages when supervisor last viewed
+let latestMessages = {}; // projectId -> latest message content
+let lastMessageCount = 0;
 
 // ════════════════════════════════════════
-// GLOBAL SOCKET — join all project rooms immediately on load
-// so supervisor receives messages without opening the Chat panel
+// GLOBAL SOCKET & POLLING SYNCHRONIZATION
 // ════════════════════════════════════════
 function initGlobalSocket() {
   if (socket) socket.disconnect();
@@ -861,9 +863,15 @@ function initGlobalSocket() {
     // Ignore messages sent by the supervisor themselves
     if (msg.senderId === PROFILE.id) return;
 
+    // Save latest message content for preview
+    latestMessages[msg.projectId] = msg.content;
+
     // If supervisor is currently viewing this project's chat → append live
     if (chatProjectId === msg.projectId) {
       appendMessage(msg.content, false, msg.sender?.avatar || msg.sender?.name?.slice(0,2) || 'CL', msg.timestamp);
+      // Mark as read locally
+      localMessageCount[msg.projectId] = (localMessageCount[msg.projectId] || 0) + 1;
+      updateContactBadges();
       return;
     }
 
@@ -876,13 +884,81 @@ function initGlobalSocket() {
     projectUnreads[msg.projectId] = (projectUnreads[msg.projectId] || 0) + 1;
     updateContactBadges();
   });
+
+  // Pull baseline message counts on load
+  initMessageBaselines();
 }
+
+async function initMessageBaselines() {
+  for (const p of allProjects) {
+    try {
+      const messages = await api(`/chat/messages/${p.id}`);
+      localMessageCount[p.id] = messages.length;
+      if (messages.length > 0) {
+        latestMessages[p.id] = messages[messages.length - 1].content;
+      }
+    } catch (_) {}
+  }
+  updateContactBadges();
+}
+
+async function pollUnreads() {
+  if (allProjects.length === 0) return;
+  let totalPending = 0;
+  for (const p of allProjects) {
+    try {
+      const messages = await api(`/chat/messages/${p.id}`);
+      const currentCount = messages.length;
+      
+      // Update latest message preview
+      if (currentCount > 0) {
+        latestMessages[p.id] = messages[currentCount - 1].content;
+      }
+
+      // If active project, keep local count synced
+      if (chatProjectId === p.id) {
+        localMessageCount[p.id] = currentCount;
+      }
+
+      const lastCount = localMessageCount[p.id] || 0;
+      const newMessages = Math.max(0, currentCount - lastCount);
+      if (newMessages > 0 && chatProjectId !== p.id) {
+        projectUnreads[p.id] = newMessages;
+        totalPending += newMessages;
+      } else {
+        projectUnreads[p.id] = 0;
+      }
+    } catch (_) {}
+  }
+  unreadCount = totalPending;
+  const badge = document.getElementById('chatUnreadBadge');
+  if (badge) {
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  updateContactBadges();
+}
+
+// Poll unreads and latest messages every 6 seconds as a fallback
+setInterval(pollUnreads, 6000);
+
+// Poll active chat every 2.5 seconds to ensure instant delivery without WebSockets
+setInterval(() => {
+  const chatPanel = document.getElementById('panel-chat');
+  if (chatPanel && chatPanel.style.display !== 'none' && chatProjectId) {
+    loadChatMessages(true);
+  }
+}, 2500);
 
 function updateContactBadges() {
   document.querySelectorAll('.chat-contact-item').forEach(item => {
     const pid = parseInt(item.getAttribute('data-pid'));
     
-    // Remove existing badge if any
+    // Update badge
     const existing = item.querySelector('.contact-unread-badge');
     if (existing) existing.remove();
 
@@ -894,6 +970,13 @@ function updateContactBadges() {
       badge.textContent = count;
       item.appendChild(badge);
     }
+
+    // Update preview
+    const previewEl = document.getElementById(`chat-preview-${pid}`);
+    if (previewEl) {
+      const lastMsg = latestMessages[pid] || 'No messages yet';
+      previewEl.textContent = lastMsg.length > 30 ? lastMsg.substring(0, 27) + '...' : lastMsg;
+    }
   });
 }
 
@@ -903,7 +986,7 @@ function initChatPanel() {
   const clients = [];
   allProjects.forEach(p => {
     (p.clients || []).forEach(c => {
-      clients.push({ userId: c.user.id, name: c.user.name, avatar: c.user.avatar || 'CL', projectId: p.id, projectName: p.name });
+      clients.push({ userId: c.user.id, clientId: c.id, name: c.user.name, avatar: c.user.avatar || 'CL', projectId: p.id, projectName: p.name });
     });
   });
 
@@ -915,13 +998,18 @@ function initChatPanel() {
   list.innerHTML = clients.map(c => {
     const count = projectUnreads[c.projectId] || 0;
     const badgeHtml = count > 0 ? `<span class="contact-unread-badge" style="margin-left:auto; background:#16a34a; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:2px 6px; min-width:14px; text-align:center;">${count}</span>` : '';
+    const lastMsg = latestMessages[c.projectId] || 'No messages yet';
+    const truncatedMsg = lastMsg.length > 30 ? lastMsg.substring(0, 27) + '...' : lastMsg;
     return `
-      <div class="chat-contact-item" data-uid="${c.userId}" data-pid="${c.projectId}" onclick="selectChatClient(${c.userId}, '${c.name}', '${c.avatar}', ${c.projectId}, '${c.projectName}')"
-        style="display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; border-bottom:1px solid #f0f0f5; transition:background 0.15s;">
+      <div class="chat-contact-item" data-uid="${c.userId}" data-pid="${c.projectId}" onclick="selectChatClient(${c.userId}, ${c.clientId}, '${c.name}', '${c.avatar}', ${c.projectId}, '${c.projectName}')"
+        style="display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; border-bottom:1px solid #f0f0f5; transition:background 0.15s; width: 100%; box-sizing: border-box;">
         <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0a1628,#1a2a4a); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${c.avatar}</div>
-        <div>
-          <div style="font-size:14px; font-weight:600; color:#1a2a4a;">${c.name}</div>
-          <div style="font-size:11px; color:#888;">${c.projectName}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:14px; font-weight:600; color:#1a2a4a; display:flex; justify-content:space-between; align-items:center;">
+            <span>${c.name}</span>
+          </div>
+          <div style="font-size:11px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${c.projectName}</div>
+          <div style="font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;" id="chat-preview-${c.projectId}">${truncatedMsg}</div>
         </div>
         ${badgeHtml}
       </div>
@@ -931,80 +1019,11 @@ function initChatPanel() {
   // Auto-select first client
   if (clients.length > 0) {
     const first = clients[0];
-    selectChatClient(first.userId, first.name, first.avatar, first.projectId, first.projectName);
+    selectChatClient(first.userId, first.clientId, first.name, first.avatar, first.projectId, first.projectName);
   }
 }
 
-function openChatWithClient(userId, name, projectId) {
-  // Switch to chat panel
-  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
-  document.querySelector('.sb-item[data-panel="chat"]').classList.add('active');
-  document.querySelectorAll('.db-panel').forEach(p => p.style.display = 'none');
-  document.getElementById('panel-chat').style.display = '';
-  document.getElementById('pageTitle').textContent = '💬 Client Chat';
-  initChatPanel();
-  // Select the right client
-  setTimeout(() => {
-    const project = allProjects.find(p => p.id === projectId);
-    const client = (project?.clients || []).find(c => c.user.id === userId);
-    if (client) selectChatClient(userId, client.user.name, client.user.avatar || 'CL', projectId, project.name);
-  }, 100);
-}
 
-async function selectChatClient(userId, name, avatar, projectId, projectName) {
-  chatClientUserId = userId;
-  chatProjectId = projectId;
-
-  // Clear this project's unread counts when opening the chat
-  const clearedCount = projectUnreads[projectId] || 0;
-  projectUnreads[projectId] = 0;
-  unreadCount = Math.max(0, unreadCount - clearedCount);
-
-  const badge = document.getElementById('chatUnreadBadge');
-  if (badge) {
-    if (unreadCount > 0) {
-      badge.textContent = unreadCount;
-    } else {
-      badge.style.display = 'none';
-    }
-  }
-
-  updateContactBadges();
-
-  document.querySelectorAll('.chat-contact-item').forEach(el => el.style.background = '');
-  const item = document.querySelector(`.chat-contact-item[data-uid="${userId}"]`);
-  if (item) item.style.background = '#fff9eb';
-
-  document.getElementById('chatClientName').textContent = name;
-  document.getElementById('chatClientAv').textContent = avatar;
-  document.getElementById('chatProjectName').textContent = projectName;
-
-  await loadChatMessages();
-  initSocket(projectId);
-}
-
-async function loadChatMessages() {
-  if (!chatProjectId) return;
-  const box = document.getElementById('chatMessages');
-  box.innerHTML = '<div style="text-align:center; color:#aaa; font-size:13px; padding:20px;">Loading...</div>';
-  try {
-    const messages = await api(`/chat/messages/${chatProjectId}`);
-    renderMessages(messages);
-  } catch (err) {
-    box.innerHTML = '<div style="color:#dc2626; font-size:13px; padding:16px;">Failed to load chat.</div>';
-  }
-}
-
-function renderMessages(messages) {
-  const box = document.getElementById('chatMessages');
-  box.innerHTML = '';
-  if (!messages.length) {
-    box.innerHTML = '<div class="empty-state"><div class="ico">💬</div><p>No messages yet. Start the conversation!</p></div>';
-    return;
-  }
-  messages.forEach(msg => appendMessage(msg.content, msg.senderId === PROFILE.id, msg.sender?.avatar || (msg.senderId === PROFILE.id ? 'VR' : 'JS'), msg.timestamp));
-  box.scrollTop = box.scrollHeight;
-}
 
 function appendMessage(text, isMe, avatar, timestamp) {
   const box = document.getElementById('chatMessages');
