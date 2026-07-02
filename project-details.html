@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Details — Arthi Constructions</title>
+<meta name="description" content="Explore premium residential projects by Arthi Constructions in Kochi and Kozhikode, Kerala.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/project-details.css">
+</head>
+<body>
+<div id="toast-stack"></div>
+
+<!-- ============ TOP NAV ============ -->
+<nav class="pd-topnav">
+  <a href="index.html" class="pd-topnav-brand">
+    <div class="logo-mark">A</div>
+    <span>ARTHI CONSTRUCTIONS</span>
+  </a>
+  <div class="pd-nav" id="pdNavLinks">
+    <a href="#overview">Overview</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#floor-plans">Floor Plans</a>
+    <a href="#progress">Progress</a>
+    <a href="#nearby">Nearby</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="pd-topnav-actions">
+    <button class="btn btn-sm btn-ghost" id="pdShareBtn">🔗 Share</button>
+    <button class="btn btn-sm btn-gold" data-action="book-visit">📅 Book Visit</button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="pd-hero" id="pdHero">
+  <div class="pd-hero-content">
+    <button class="pd-back-btn" onclick="history.back()">← Back to Projects</button>
+    <span class="pd-status-chip chip-info" id="pdStatus">Ongoing</span>
+    <h1 id="pdName">Arthi Skyline Towers</h1>
+    <div class="pd-hero-tagline" id="pdTagline">Rise Above the Ordinary</div>
+    <div class="pd-hero-meta">
+      <div class="pd-hero-meta-item">📍 <span id="pdLocation">Kakkanad, Kochi, Kerala</span></div>
+      <div class="pd-hero-meta-item">🏢 <span id="pdType">Premium Apartments</span></div>
+      <div class="pd-hero-meta-item">👷 <span id="pdBuilder">Arthi Constructions</span></div>
+    </div>
+    <div class="pd-hero-actions">
+      <button class="btn btn-gold" data-action="book-visit">📅 Book Site Visit</button>
+      <button class="btn btn-outline" data-action="download-brochure">📥 Download Brochure</button>
+      <button class="btn btn-ghost" onclick="openEnquiry()">✉️ Enquire Now</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUICK STATS ============ -->
+<div class="pd-stats-strip" id="overview">
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdPrice">₹72 Lakhs</div>
+    <div class="pd-stat-lbl">Starting Price</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdTowers">3 Towers</div>
+    <div class="pd-stat-lbl">Towers</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdFloors">18 Floors</div>
+    <div class="pd-stat-lbl">Floors</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdUnitType">216 Flats</div>
+    <div class="pd-stat-lbl">Unit Type</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdTotal">216 Units</div>
+    <div class="pd-stat-lbl">Total Units</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdAvail">84 Units</div>
+    <div class="pd-stat-lbl">Available</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdBooked">132 Units</div>
+    <div class="pd-stat-lbl">Booked</div>
+  </div>
+  <div class="pd-stat-item">
+    <div class="pd-stat-val" id="pdCompletion">Dec 2027</div>
+    <div class="pd-stat-lbl">Est. Completion</div>
+  </div>
+</div>
+
+<!-- ============ SECTION NAV ============ -->
+<nav class="pd-subnav">
+  <a href="#overview">Overview</a>
+  <a href="#amenities">Amenities</a>
+  <a href="#gallery">Gallery</a>
+  <a href="#floor-plans">Floor Plans</a>
+  <a href="#progress">Progress</a>
+  <a href="#nearby">Nearby</a>
+  <a href="#location">Location</a>
+  <a href="#specs">Specifications</a>
+  <a href="#faqs">FAQs</a>
+  <a href="#contact">Contact Sales</a>
+</nav>
+
+<!-- ============ ABOUT / DESCRIPTION ============ -->
+<section class="pd-section" id="about-desc">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">About This Project</div>
+      <h2 class="pd-section-title" id="pdNameRepeat">Arthi Skyline Towers</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start">
+      <div class="pd-description" id="pdDescription" style="color:#64748b;font-size:15px;line-height:1.8"></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#c9972a;margin-bottom:12px">Project Info</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:14px">
+            <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Builder</span><strong id="pdBuilderInfo">Arthi Constructions</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Launch Date</span><strong id="pdLaunch">—</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Starting Price</span><strong id="pdPriceInfo" style="color:#c9972a">₹72 Lakhs</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Price Note</span><span id="pdPriceNote" style="color:#64748b;font-size:13px">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Status</span><span id="pdStatusInfo">Ongoing</span></div>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#c9972a;margin-bottom:8px">RERA Registration</div>
+          <div style="font-size:13px;color:#64748b" id="pdReraNo">KL/RERA/PRJ/2024/001234</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-gold btn-sm" data-action="book-visit">📅 Book Visit</button>
+          <button class="btn btn-outline-dark btn-sm" data-action="download-brochure">📥 Brochure</button>
+          <button class="btn btn-outline-dark btn-sm" onclick="openEnquiry()">✉️ Enquire</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AMENITIES ============ -->
+<section class="pd-section" id="amenities" style="background:#fff">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">World-Class Facilities</div>
+      <h2 class="pd-section-title">Amenities</h2>
+      <p class="pd-section-sub">Every comfort you need, right within your community.</p>
+    </div>
+    <div class="pd-amenities-grid" id="pdAmenities"></div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="pd-section" id="gallery">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Photos &amp; Visuals</div>
+      <h2 class="pd-section-title">Project Gallery</h2>
+      <p class="pd-section-sub">Explore construction progress and design previews.</p>
+    </div>
+    <div class="pd-gallery-grid" id="pdGallery"></div>
+  </div>
+</section>
+
+<!-- ============ 360° VIEW PLACEHOLDER ============ -->
+<section class="pd-section" style="background:#fff;padding-top:0">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Virtual Experience</div>
+      <h2 class="pd-section-title">360° Virtual Tour</h2>
+    </div>
+    <div class="pd-360-placeholder">
+      <div class="pd-360-icon">🔄</div>
+      <div class="pd-360-text">360° Virtual Tour</div>
+      <div class="pd-360-sub">Immersive walkthrough coming soon.<br>Contact sales for a live video tour.</div>
+      <button class="btn btn-gold" style="margin-top:16px" onclick="openEnquiry()">Request Video Tour</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FLOOR PLANS ============ -->
+<section class="pd-section" id="floor-plans">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Unit Types</div>
+      <h2 class="pd-section-title">Floor Plans</h2>
+      <p class="pd-section-sub">Choose the configuration that fits your lifestyle.</p>
+    </div>
+    <div class="pd-floorplans-grid" id="pdFloorPlans"></div>
+
+    <!-- Master Plan placeholder -->
+    <div style="margin-top:40px">
+      <div class="pd-section-eyebrow" style="margin-bottom:12px">Site Layout</div>
+      <h3 style="font-family:'Fraunces',serif;font-size:22px;color:#0f1e3a;margin-bottom:20px">Master Plan</h3>
+      <div style="background:linear-gradient(135deg,#e8f0ff,#f0f7ff);border:1px solid #d0e4ff;border-radius:16px;height:280px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+        <div style="font-size:36px">🗺️</div>
+        <div style="font-weight:700;color:#0f1e3a;font-size:16px">Master Plan Available</div>
+        <div style="color:#64748b;font-size:13px">Download the brochure or visit our office for the detailed master plan.</div>
+        <button class="btn btn-gold btn-sm" data-action="download-brochure">📥 Download Brochure</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONSTRUCTION PROGRESS ============ -->
+<section class="pd-section" id="progress" style="background:#fff">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Live Status</div>
+      <h2 class="pd-section-title">Construction Progress</h2>
+      <p class="pd-section-sub">Real-time construction status updated monthly.</p>
+    </div>
+
+    <div class="pd-overall-progress">
+      <div class="pd-overall-label">
+        <span>Overall Construction</span>
+        <span id="pdProgressLabel">48% Complete</span>
+      </div>
+      <div class="pd-overall-bar">
+        <div class="pd-overall-fill" id="pdProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="pdStages"></div>
+
+    <div style="margin-top:24px;display:flex;gap:20px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#64748b">
+        <div style="width:14px;height:14px;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:3px"></div>Completed
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#64748b">
+        <div style="width:14px;height:14px;background:linear-gradient(90deg,#1d4ed8,#3b82f6);border-radius:3px"></div>In Progress
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#64748b">
+        <div style="width:14px;height:14px;background:#e2e8f0;border-radius:3px"></div>Upcoming
+      </div>
+    </div>
+
+    <div style="margin-top:28px;background:#f8faff;border:1px solid #d0e4ff;border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:28px">📅</div>
+      <div>
+        <div style="font-weight:700;color:#0f1e3a;font-size:15px">Expected Completion</div>
+        <div style="color:#c9972a;font-size:18px;font-weight:800;margin-top:2px" id="pdCompletionFull">December 2027</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEARBY ============ -->
+<section class="pd-section" id="nearby">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Connectivity</div>
+      <h2 class="pd-section-title">Nearby Landmarks</h2>
+      <p class="pd-section-sub">Everything important is just minutes away.</p>
+    </div>
+    <div class="pd-nearby-grid">
+      <div class="pd-nearby-card">
+        <div class="pd-nearby-card-title">🏫 Schools</div>
+        <div id="pdSchools"></div>
+      </div>
+      <div class="pd-nearby-card">
+        <div class="pd-nearby-card-title">🏥 Hospitals</div>
+        <div id="pdHospitals"></div>
+      </div>
+      <div class="pd-nearby-card">
+        <div class="pd-nearby-card-title">🚇 Metro / Transport</div>
+        <div id="pdMetro"></div>
+      </div>
+      <div class="pd-nearby-card">
+        <div class="pd-nearby-card-title">✈️ Airport</div>
+        <div id="pdAirport"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAP ============ -->
+<section class="pd-section" id="location" style="background:#fff;padding-top:0">
+  <div class="pd-container">
+    <div class="pd-section-head" style="margin-bottom:20px">
+      <div class="pd-section-eyebrow">Location</div>
+      <h2 class="pd-section-title">Google Map</h2>
+    </div>
+    <div class="pd-map-container">
+      <iframe id="pdMapFrame" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src=""></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPECIFICATIONS ============ -->
+<section class="pd-section" id="specs">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Construction Details</div>
+      <h2 class="pd-section-title">Specifications</h2>
+      <p class="pd-section-sub">Premium materials and finishes at every level.</p>
+    </div>
+    <div class="pd-specs-grid" id="pdSpecs"></div>
+  </div>
+</section>
+
+<!-- ============ FAQs ============ -->
+<section class="pd-section" id="faqs" style="background:#fff">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Common Questions</div>
+      <h2 class="pd-section-title">FAQs</h2>
+    </div>
+    <div class="pd-faqs" id="pdFaqs"></div>
+  </div>
+</section>
+
+<!-- ============ CONTACT SALES ============ -->
+<section class="pd-section" id="contact">
+  <div class="pd-container">
+    <div class="pd-section-head">
+      <div class="pd-section-eyebrow">Get In Touch</div>
+      <h2 class="pd-section-title">Contact Sales</h2>
+    </div>
+    <div class="pd-contact-grid">
+
+      <!-- Left: Sales Card -->
+      <div class="pd-contact-card">
+        <div class="pd-contact-title">Talk to Our Sales Expert</div>
+        <p style="color:rgba(255,255,255,.6);font-size:14px;margin-top:-12px">Get personalized advice, schedule a site visit, or request a home loan consultation.</p>
+
+        <div class="pd-contact-item">
+          <div class="pd-contact-ico">👤</div>
+          <div class="pd-contact-info">
+            <b id="pdSalesName">Arun Nair</b>
+            <span>Sales Manager — Kochi Region</span>
+          </div>
+        </div>
+        <div class="pd-contact-item">
+          <div class="pd-contact-ico">📞</div>
+          <div class="pd-contact-info">
+            <b id="pdSalesPhone">+91 94470 12345</b>
+            <span>Mon–Sat, 9 AM – 7 PM</span>
+          </div>
+        </div>
+        <div class="pd-contact-item">
+          <div class="pd-contact-ico">✉️</div>
+          <div class="pd-contact-info">
+            <b id="pdSalesEmail">sales@arthiconstructions.com</b>
+            <span>Email response within 2 hours</span>
+          </div>
+        </div>
+        <div class="pd-contact-item">
+          <div class="pd-contact-ico">🏢</div>
+          <div class="pd-contact-info">
+            <b>Head Office, Kochi</b>
+            <span>MG Road, Ernakulam, Kochi — 682 016</span>
+          </div>
+        </div>
+
+        <div class="pd-contact-btns">
+          <button class="btn btn-gold" data-action="call-sales">📞 Call Now</button>
+          <button class="btn btn-outline" data-action="book-visit">📅 Book Site Visit</button>
+          <button class="btn btn-ghost" data-action="download-brochure">📥 Download Brochure</button>
+        </div>
+      </div>
+
+      <!-- Right: Enquiry Form -->
+      <div class="pd-enquiry-form">
+        <h3>Send an Enquiry</h3>
+        <p>Fill in your details and our team will reach out to you within 24 hours.</p>
+        <form id="pdEnquiryFormInline">
+          <div class="pd-form-row">
+            <div class="pd-field">
+              <label>Full Name *</label>
+              <input type="text" placeholder="Your full name" required>
+            </div>
+            <div class="pd-field">
+              <label>Mobile Number *</label>
+              <input type="tel" placeholder="+91 XXXXX XXXXX" required>
+            </div>
+          </div>
+          <div class="pd-form-row">
+            <div class="pd-field">
+              <label>Email Address</label>
+              <input type="email" placeholder="you@example.com">
+            </div>
+            <div class="pd-field">
+              <label>Budget Range</label>
+              <select>
+                <option value="">Select budget…</option>
+                <option>Below ₹50 Lakhs</option>
+                <option>₹50L – ₹75L</option>
+                <option>₹75L – ₹1 Crore</option>
+                <option>₹1Cr – ₹1.5Cr</option>
+                <option>₹1.5Cr – ₹2Cr</option>
+                <option>Above ₹2 Crore</option>
+              </select>
+            </div>
+          </div>
+          <div class="pd-field">
+            <label>Preferred Unit Type</label>
+            <select>
+              <option value="">Select type…</option>
+              <option>2 BHK</option>
+              <option>3 BHK</option>
+              <option>4 BHK</option>
+              <option>Villa</option>
+              <option>Penthouse</option>
+            </select>
+          </div>
+          <div class="pd-field">
+            <label>Message</label>
+            <textarea placeholder="Any specific requirements or questions…" style="min-height:80px;resize:vertical"></textarea>
+          </div>
+          <button class="btn btn-gold btn-block" type="submit">✅ Submit Enquiry</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="pd-footer">
+  <div>© 2026 Arthi Constructions. All rights reserved. | <a href="index.html">Home</a> | <a href="#">Privacy Policy</a> | <a href="#">Terms</a></div>
+  <div style="margin-top:6px;font-size:11px">Designed by Jenson Solutions · All prices are indicative and subject to change. RERA compliance as noted.</div>
+</footer>
+
+<!-- ============ GALLERY LIGHTBOX ============ -->
+<div class="pd-lightbox" id="pdLightbox">
+  <button class="pd-lb-close" id="pdLbClose">✕</button>
+  <button class="pd-lb-nav prev" id="pdLbPrev">‹</button>
+  <img class="pd-lb-img" id="pdLbImg" src="" alt="Gallery">
+  <div class="pd-lb-caption" id="pdLbCap"></div>
+  <button class="pd-lb-nav next" id="pdLbNext">›</button>
+</div>
+
+<!-- ============ ENQUIRY MODAL (from floor plan cards) ============ -->
+<div class="modal-overlay" id="pdEnquiryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Enquire About This Unit</h3>
+      <button class="modal-close" data-close-modal="pdEnquiryModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="pdEnquiryForm">
+        <div class="pd-field">
+          <label>Project</label>
+          <input class="pd-field input" type="text" id="enqProject" readonly>
+        </div>
+        <div class="pd-field">
+          <label>Unit Type</label>
+          <input class="pd-field input" type="text" id="enqPlan" placeholder="e.g. 3 BHK">
+        </div>
+        <div class="pd-form-row">
+          <div class="pd-field">
+            <label>Full Name *</label>
+            <input type="text" placeholder="Your name" required>
+          </div>
+          <div class="pd-field">
+            <label>Mobile *</label>
+            <input type="tel" placeholder="+91 XXXXX XXXXX" required>
+          </div>
+        </div>
+        <div class="pd-field">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com">
+        </div>
+        <div class="pd-field">
+          <label>Message</label>
+          <textarea placeholder="Any specific questions…" style="min-height:70px;width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:Inter,sans-serif;font-size:14px;outline:none;resize:vertical"></textarea>
+        </div>
+        <button class="btn btn-gold btn-block" type="submit">📤 Submit Enquiry</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/toast.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // Modal helpers (needed before project-details.js)
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  }
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-close-modal]');
+    if (btn) closeModal(btn.getAttribute('data-close-modal'));
+  });
+
+  // Inline enquiry form
+  document.getElementById('pdEnquiryFormInline')?.addEventListener('submit', e => {
+    e.preventDefault();
+    showToast('Enquiry submitted! Our sales team will contact you within 24 hours.', 'success');
+    e.target.reset();
+  });
+</script>
+<script src="js/project-details.js"></script>
+</body>
+</html>

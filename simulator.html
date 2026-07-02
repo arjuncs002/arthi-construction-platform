@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room Simulator — Arthi Constructions</title>
+<meta name="description" content="Design your dream interior. Drag, rotate and resize furniture on a live canvas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/simulator.css">
+</head>
+<body>
+<div id="toast-stack"></div>
+
+<div class="sim-shell">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="sim-topbar">
+    <div class="sim-topbar-left">
+      <button class="sim-back-btn" id="backDashboard">← Dashboard</button>
+      <div>
+        <div class="sim-title">Room Simulator</div>
+        <div class="sim-subtitle">Arthi Constructions · Interior Planner</div>
+      </div>
+    </div>
+    <div class="sim-topbar-actions">
+      <button class="sim-btn ghost" id="undoBtn" title="Undo">↩ Undo</button>
+      <button class="sim-btn ghost" id="resetBtn">🗑️ Reset</button>
+      <button class="sim-btn gold" id="saveBtn">💾 Save Layout</button>
+    </div>
+  </header>
+
+  <!-- ============ BODY ============ -->
+  <div class="sim-body">
+
+    <!-- Left Palette -->
+    <div class="sim-palette">
+      <div class="palette-header">Furniture & Decor</div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Seating</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="sofa" data-emoji="🛋️" data-label="Sofa" data-w="110" data-h="55" data-color="#8B6F47">
+            <span class="p-ico">🛋️</span><span class="p-name">Sofa</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="chair" data-emoji="🪑" data-label="Chair" data-w="50" data-h="50" data-color="#6B8E8B">
+            <span class="p-ico">🪑</span><span class="p-name">Chair</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="armchair" data-emoji="🪑" data-label="Armchair" data-w="60" data-h="60" data-color="#7B8E6B">
+            <span class="p-ico">🪑</span><span class="p-name">Armchair</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="loveseat" data-emoji="🛋️" data-label="Love Seat" data-w="80" data-h="50" data-color="#9B6F5B">
+            <span class="p-ico">🛋️</span><span class="p-name">Love Seat</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Bedroom</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="bed" data-emoji="🛏️" data-label="Bed" data-w="110" data-h="130" data-color="#6B5B4E">
+            <span class="p-ico">🛏️</span><span class="p-name">Bed</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="wardrobe" data-emoji="🪟" data-label="Wardrobe" data-w="100" data-h="45" data-color="#5C4A3A">
+            <span class="p-ico">🪟</span><span class="p-name">Wardrobe</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="dresser" data-emoji="🗄️" data-label="Dresser" data-w="70" data-h="40" data-color="#7A5C42">
+            <span class="p-ico">🗄️</span><span class="p-name">Dresser</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="side-table" data-emoji="🟫" data-label="Side Table" data-w="38" data-h="38" data-color="#8B7355">
+            <span class="p-ico">🟫</span><span class="p-name">Side Table</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Entertainment</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="tv" data-emoji="📺" data-label="TV" data-w="90" data-h="20" data-color="#2C3E50">
+            <span class="p-ico">📺</span><span class="p-name">TV</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="tv-stand" data-emoji="🖥️" data-label="TV Stand" data-w="90" data-h="38" data-color="#3D3D3D">
+            <span class="p-ico">🖥️</span><span class="p-name">TV Stand</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="bookshelf" data-emoji="📚" data-label="Bookshelf" data-w="70" data-h="30" data-color="#5C3A1E">
+            <span class="p-ico">📚</span><span class="p-name">Bookshelf</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Dining</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="dining-table" data-emoji="🍽️" data-label="Dining Table" data-w="100" data-h="60" data-color="#8B6914">
+            <span class="p-ico">🍽️</span><span class="p-name">Dining Table</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="coffee-table" data-emoji="☕" data-label="Coffee Table" data-w="70" data-h="40" data-color="#9B8B6B">
+            <span class="p-ico">☕</span><span class="p-name">Coffee Table</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Kitchen</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="kitchen-counter" data-emoji="🍳" data-label="Counter" data-w="120" data-h="45" data-color="#B0C4DE">
+            <span class="p-ico">🍳</span><span class="p-name">Counter</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="island" data-emoji="🏝️" data-label="Island" data-w="90" data-h="55" data-color="#C0C0C0">
+            <span class="p-ico">🏝️</span><span class="p-name">Island</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="fridge" data-emoji="🧊" data-label="Fridge" data-w="45" data-h="55" data-color="#E0E8F0">
+            <span class="p-ico">🧊</span><span class="p-name">Fridge</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Decor & Plants</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="plant" data-emoji="🌿" data-label="Plant" data-w="40" data-h="40" data-color="#228B22">
+            <span class="p-ico">🌿</span><span class="p-name">Plant</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="plant-tall" data-emoji="🌴" data-label="Tall Plant" data-w="38" data-h="38" data-color="#2E8B57">
+            <span class="p-ico">🌴</span><span class="p-name">Tall Plant</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="lamp" data-emoji="💡" data-label="Floor Lamp" data-w="32" data-h="32" data-color="#FFD700">
+            <span class="p-ico">💡</span><span class="p-name">Floor Lamp</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="curtain" data-emoji="🪟" data-label="Curtains" data-w="80" data-h="20" data-color="#9B59B6">
+            <span class="p-ico">🪟</span><span class="p-name">Curtains</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="rug" data-emoji="🟥" data-label="Rug" data-w="90" data-h="60" data-color="#C0392B">
+            <span class="p-ico">🟥</span><span class="p-name">Rug</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="art" data-emoji="🖼️" data-label="Wall Art" data-w="50" data-h="40" data-color="#E67E22">
+            <span class="p-ico">🖼️</span><span class="p-name">Wall Art</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-category">
+        <div class="palette-cat-label">Lighting</div>
+        <div class="palette-items">
+          <div class="palette-item" draggable="true" data-type="ceiling-light" data-emoji="🔦" data-label="Ceiling Light" data-w="36" data-h="36" data-color="#FFFACD">
+            <span class="p-ico">🔦</span><span class="p-name">Ceiling Light</span>
+          </div>
+          <div class="palette-item" draggable="true" data-type="chandelier" data-emoji="✨" data-label="Chandelier" data-w="48" data-h="48" data-color="#FFD700">
+            <span class="p-ico">✨</span><span class="p-name">Chandelier</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="sim-canvas-area" id="canvasArea">
+      <div class="canvas-toolbar">
+        <button class="tool-btn active" data-tool="move" title="Move"><span class="t-ico">↕️</span> Move</button>
+        <button class="tool-btn" data-tool="rotate" title="Rotate (R)"><span class="t-ico">🔄</span> Rotate</button>
+        <button class="tool-btn" data-tool="resize" title="Resize"><span class="t-ico">⤡</span> Resize</button>
+        <button class="tool-btn" data-tool="delete" title="Delete"><span class="t-ico">🗑️</span> Delete</button>
+        <button class="tool-btn" data-tool="duplicate" title="Duplicate"><span class="t-ico">📋</span> Duplicate</button>
+      </div>
+      <canvas id="roomCanvas"></canvas>
+      <div class="canvas-hint" id="canvasHint">Drag items from the palette · Click to select · Scroll to zoom</div>
+    </div>
+
+    <!-- Right Properties Panel -->
+    <div class="sim-properties">
+
+      <!-- Room Size -->
+      <div class="prop-section">
+        <div class="prop-title">Room Dimensions</div>
+        <div class="dim-row">
+          <span class="dim-label">W</span>
+          <input type="number" class="dim-input" id="roomW" value="600" min="300" max="900">
+          <span class="dim-label" style="font-size:9px;color:#5a6b8a">px</span>
+        </div>
+        <div class="dim-row" style="margin-top:6px">
+          <span class="dim-label">H</span>
+          <input type="number" class="dim-input" id="roomH" value="480" min="300" max="700">
+          <span class="dim-label" style="font-size:9px;color:#5a6b8a">px</span>
+        </div>
+        <button class="sim-btn ghost" style="margin-top:10px;width:100%;justify-content:center;font-size:12px" id="applyRoomSize">Apply</button>
+      </div>
+
+      <!-- Wall Colors -->
+      <div class="prop-section">
+        <div class="prop-title">Wall Color</div>
+        <div class="color-grid" id="wallColorGrid">
+          <div class="clr-swatch selected" data-color="#FAFAFA" style="background:#FAFAFA" title="White"></div>
+          <div class="clr-swatch" data-color="#FFF5E6" style="background:#FFF5E6" title="Cream"></div>
+          <div class="clr-swatch" data-color="#E8EDF7" style="background:#E8EDF7" title="Sky Blue"></div>
+          <div class="clr-swatch" data-color="#E8F5E9" style="background:#E8F5E9" title="Mint Green"></div>
+          <div class="clr-swatch" data-color="#FFF0F0" style="background:#FFF0F0" title="Blush Pink"></div>
+          <div class="clr-swatch" data-color="#F0EBE3" style="background:#F0EBE3" title="Warm Beige"></div>
+          <div class="clr-swatch" data-color="#E8E4F0" style="background:#E8E4F0" title="Lavender"></div>
+          <div class="clr-swatch" data-color="#E4EDE8" style="background:#E4EDE8" title="Sage"></div>
+          <div class="clr-swatch" data-color="#1E2D40" style="background:#1E2D40" title="Dark Navy"></div>
+          <div class="clr-swatch" data-color="#2C3E50" style="background:#2C3E50" title="Charcoal"></div>
+        </div>
+      </div>
+
+      <!-- Flooring -->
+      <div class="prop-section">
+        <div class="prop-title">Flooring</div>
+        <div class="floor-grid" id="floorGrid">
+          <div class="floor-opt selected" data-floor="marble" style="background:linear-gradient(135deg,#f5f5f5,#e0e0e0,#f0f0f0);color:#666">Marble</div>
+          <div class="floor-opt" data-floor="wood-light" style="background:linear-gradient(135deg,#DEB887,#C4A072,#DEB887);color:#5C3A1E">Light Wood</div>
+          <div class="floor-opt" data-floor="wood-dark" style="background:linear-gradient(135deg,#6B3A2B,#4A2518,#6B3A2B);color:#DEB887">Dark Wood</div>
+          <div class="floor-opt" data-floor="tiles" style="background:repeating-conic-gradient(#e0e0e0 0% 25%,#f5f5f5 0% 50%) 0 0/24px 24px;color:#555">Tiles</div>
+          <div class="floor-opt" data-floor="concrete" style="background:#B0ADA8;color:#fff">Concrete</div>
+          <div class="floor-opt" data-floor="carpet" style="background:#7B6B8B;color:#EBE8F0">Carpet</div>
+        </div>
+      </div>
+
+      <!-- Selected Item -->
+      <div class="prop-section sel-panel" id="selPanel">
+        <div class="prop-title">Selected Item</div>
+        <div id="selInfo"><div class="emptn">Click an item to select it</div></div>
+        <div id="selControls" style="display:none">
+          <div class="sel-name" id="selName"></div>
+          <div class="sel-row">
+            <button class="sel-btn rotate" id="selRotate">🔄 90°</button>
+            <button class="sel-btn dup" id="selDuplicate">📋 Copy</button>
+          </div>
+          <div class="sel-row">
+            <button class="sel-btn delete" id="selDelete">🗑️ Delete</button>
+          </div>
+          <div style="margin-top:8px">
+            <div class="prop-label" style="color:#8fa0c4;font-size:11px;margin-bottom:6px">Opacity</div>
+            <input type="range" class="prop-slider" id="selOpacity" min="20" max="100" value="100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .sim-body -->
+</div><!-- end .sim-shell -->
+
+<script src="js/toast.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/simulator.js"></script>
+</body>
+</html>

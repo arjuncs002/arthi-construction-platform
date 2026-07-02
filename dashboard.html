@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Arthi Constructions Client Portal</title>
+<meta name="description" content="Your personal client dashboard for tracking construction progress, payments, documents, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div id="toast-stack"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">✕</button>
+  <button class="lightbox-nav prev" id="lbPrev">‹</button>
+  <img id="lbImg" src="" alt="Preview">
+  <div class="lightbox-caption" id="lbCaption"></div>
+  <button class="lightbox-nav next" id="lbNext">›</button>
+</div>
+
+<div class="db-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="logo-mark">A</div>
+      <div class="brand-text">
+        <b>ARTHI CONSTRUCTIONS</b>
+        <span>Client Portal</span>
+      </div>
+      <button class="sb-close" id="sidebarClose">✕</button>
+    </div>
+
+    <div class="sb-user">
+      <div class="avatar" id="sbAvatar">JD</div>
+      <div>
+        <div class="uname" id="sbName">John Doe</div>
+        <div class="urole">Client</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Main</div>
+      <button class="sb-item active" data-panel="overview">
+        <span class="ico">🏠</span> Overview
+      </button>
+      <button class="sb-item" data-panel="gallery">
+        <span class="ico">📸</span> Gallery
+      </button>
+      <button class="sb-item" data-panel="notifications">
+        <span class="ico">🔔</span> Notifications
+        <span class="badge">3</span>
+      </button>
+
+      <div class="sb-section-label">Communicate</div>
+      <button class="sb-item" data-panel="chat">
+        <span class="ico">💬</span> Chat
+      </button>
+      <button class="sb-item" data-panel="book-call">
+        <span class="ico">📞</span> Book a Call
+      </button>
+      <button class="sb-item" data-panel="site-visit">
+        <span class="ico">📅</span> Book Site Visit
+      </button>
+      <button class="sb-item" data-panel="requests">
+        <span class="ico">📋</span> Raise Request
+      </button>
+
+      <div class="sb-section-label">Financial</div>
+      <button class="sb-item" data-panel="payments">
+        <span class="ico">💳</span> Payments
+      </button>
+      <button class="sb-item" data-panel="documents">
+        <span class="ico">📂</span> Documents
+      </button>
+
+      <div class="sb-section-label">Explore</div>
+      <button class="sb-item" data-panel="explore">
+        <span class="ico">🏗️</span> Explore Projects
+      </button>
+      <button class="sb-item" data-panel="simulator">
+        <span class="ico">🛋️</span> Room Simulator
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <button class="sb-logout" id="logoutBtn">
+        <span>🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="db-main">
+
+    <!-- Top Bar -->
+    <header class="db-topbar">
+      <div class="db-topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <div class="db-page-title" id="pageTitle">Overview</div>
+      </div>
+      <div class="db-topbar-right">
+        <div class="topbar-time" id="topbarTime"></div>
+        <button class="notif-btn" data-panel="notifications" title="Notifications">
+          🔔 <span class="dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ PANELS ============ -->
+    <div class="db-content">
+
+      <!-- ======== OVERVIEW ======== -->
+      <div class="db-panel active" id="panel-overview">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div>
+            <h2>Welcome back, <span id="wbName">John Doe</span> 👋</h2>
+            <p>Here's an update on your construction progress as of today.</p>
+            <div class="welcome-badge">
+              <span class="project-id" id="wbProject">Project: ACV-2345</span>
+              <span class="chip chip-info">Villa — Arthi Meadows</span>
+            </div>
+          </div>
+          <div class="banner-actions">
+            <button class="btn btn-gold btn-sm" data-panel="chat">💬 Message Supervisor</button>
+            <button class="btn btn-outline-light btn-sm" data-panel="site-visit">📅 Book Visit</button>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="db-stats">
+          <div class="db-stat-card">
+            <div class="ico gold">🏗️</div>
+            <div>
+              <div class="val">72%</div>
+              <div class="lbl">Construction Done</div>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="ico green">✅</div>
+            <div>
+              <div class="val">8 / 11</div>
+              <div class="lbl">Milestones Cleared</div>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="ico blue">💳</div>
+            <div>
+              <div class="val">₹48L</div>
+              <div class="lbl">Amount Paid</div>
+            </div>
+          </div>
+          <div class="db-stat-card">
+            <div class="ico warn">📅</div>
+            <div>
+              <div class="val">Mar 2027</div>
+              <div class="lbl">Est. Handover</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress + Timeline -->
+        <div class="db-grid-2">
+          <div class="db-card">
+            <div class="db-card-header">
+              <h4>🏗️ Construction Progress</h4>
+              <span class="chip chip-info">Ongoing</span>
+            </div>
+            <div class="db-card-body">
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Foundation</span><strong>100%</strong></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Structure</span><strong>100%</strong></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Brickwork & Roofing</span><strong>100%</strong></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Electrical & Plumbing</span><strong>85%</strong></div>
+                <div class="progress-bar"><div class="progress-fill blue" style="width:85%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Plastering & Painting</span><strong>40%</strong></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Flooring & Finishing</span><strong>10%</strong></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+              </div>
+              <div class="progress-wrap" style="margin-bottom:0">
+                <div class="progress-label"><span><strong>Overall</strong></span><strong>72%</strong></div>
+                <div class="progress-bar" style="height:12px"><div class="progress-fill" style="width:72%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="db-card">
+            <div class="db-card-header">
+              <h4>📋 Construction Timeline</h4>
+            </div>
+            <div class="db-card-body">
+              <ul class="timeline">
+                <li class="timeline-item">
+                  <div class="tl-dot done">✓</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Foundation & Excavation</div>
+                    <div class="tl-sub">Completed successfully</div>
+                    <div class="tl-date">Jan 2026</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot done">✓</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Structural Framework</div>
+                    <div class="tl-sub">Columns, beams, slabs completed</div>
+                    <div class="tl-date">Mar 2026</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot done">✓</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Brickwork & Roofing</div>
+                    <div class="tl-sub">All floors completed</div>
+                    <div class="tl-date">May 2026</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot active">●</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Electrical & Plumbing</div>
+                    <div class="tl-sub">In progress — 85% done</div>
+                    <div class="tl-date">Jul 2026 (Current)</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot future">○</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Plastering & Painting</div>
+                    <div class="tl-sub">Scheduled to begin shortly</div>
+                    <div class="tl-date">Sep 2026</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot future">○</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Flooring & Final Finishing</div>
+                    <div class="tl-sub">Pending</div>
+                    <div class="tl-date">Dec 2026</div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="tl-dot future">🏠</div>
+                  <div class="tl-content">
+                    <div class="tl-title">Handover</div>
+                    <div class="tl-sub">Estimated possession</div>
+                    <div class="tl-date">Mar 2027</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest Updates + Gallery Strip -->
+        <div class="db-grid-2">
+          <div class="db-card">
+            <div class="db-card-header">
+              <h4>📰 Latest Updates</h4>
+              <button class="btn btn-sm btn-ghost" data-panel="notifications">View All</button>
+            </div>
+            <div class="db-card-body" style="padding:0">
+              <div class="notif-list" style="padding:14px">
+                <div class="notif-item unread">
+                  <div class="ni-ico">🔔</div>
+                  <div>
+                    <div class="ni-title">Electrical work on Floor 2 completed</div>
+                    <div class="ni-sub">Your supervisor has confirmed completion of floor 2 wiring.</div>
+                    <div class="ni-time">2 hours ago</div>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="ni-ico">💳</div>
+                  <div>
+                    <div class="ni-title">Upcoming payment reminder</div>
+                    <div class="ni-sub">Installment of ₹8,00,000 due on 15 July 2026.</div>
+                    <div class="ni-time">Yesterday</div>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="ni-ico">📸</div>
+                  <div>
+                    <div class="ni-title">5 new construction photos added</div>
+                    <div class="ni-sub">Photos from site inspection on 30 Jun 2026.</div>
+                    <div class="ni-time">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="db-card">
+            <div class="db-card-header">
+              <h4>📸 Gallery Preview</h4>
+              <button class="btn btn-sm btn-ghost" data-panel="gallery">View All</button>
+            </div>
+            <div class="db-card-body">
+              <div class="gallery-strip">
+                <div class="gs-item" data-lb-src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" data-lb-cap="Foundation Work">
+                  <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80" alt="Construction site">
+                  <div class="overlay">🔍</div>
+                </div>
+                <div class="gs-item" data-lb-src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80" data-lb-cap="Structural Work">
+                  <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&q=80" alt="Structure">
+                  <div class="overlay">🔍</div>
+                </div>
+                <div class="gs-item" data-lb-src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" data-lb-cap="Interior Progress">
+                  <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="Interior">
+                  <div class="overlay">🔍</div>
+                </div>
+                <div class="gs-item" data-lb-src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=900&q=80" data-lb-cap="Exterior View">
+                  <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&q=80" alt="Exterior">
+                  <div class="overlay">🔍</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="db-card" style="margin-bottom:0">
+          <div class="db-card-header"><h4>⚡ Quick Actions</h4></div>
+          <div class="db-card-body" style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-gold" data-panel="book-call">📞 Book a Call</button>
+            <button class="btn btn-outline" data-panel="site-visit">📅 Book Site Visit</button>
+            <button class="btn btn-ghost" data-panel="requests">📋 Raise Request</button>
+            <button class="btn btn-ghost" data-panel="payments">💳 View Payments</button>
+            <button class="btn btn-ghost" data-panel="documents">📂 My Documents</button>
+            <a href="simulator.html" class="btn btn-ghost">🛋️ Room Simulator</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== GALLERY ======== -->
+      <div class="db-panel" id="panel-gallery">
+        <div class="panel-title"><span class="ico">📸</span> Construction Gallery</div>
+        <div class="gallery-panel-grid" id="galleryGrid">
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80" data-lb-cap="Foundation Work — Jan 2026">
+            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80" alt="Foundation">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&q=80" data-lb-cap="Structural Framework — Mar 2026">
+            <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&q=80" alt="Structure">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=1200&q=80" data-lb-cap="Brickwork in Progress">
+            <img src="https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=500&q=80" alt="Brickwork">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80" data-lb-cap="Interior Progress">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Interior">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80" data-lb-cap="Exterior Shell — Jun 2026">
+            <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=500&q=80" alt="Exterior">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1562219278-2b61b97e63c0?w=1200&q=80" data-lb-cap="Electrical Work">
+            <img src="https://images.unsplash.com/photo-1562219278-2b61b97e63c0?w=500&q=80" alt="Electrical">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1200&q=80" data-lb-cap="Plumbing Installation">
+            <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=500&q=80" alt="Plumbing">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80" data-lb-cap="Site Overview — Jun 2026">
+            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80" alt="Site">
+            <div class="gp-overlay">🔍</div>
+          </div>
+          <div class="gp-item" data-lb-src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80" data-lb-cap="Terrace Level">
+            <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=500&q=80" alt="Terrace">
+            <div class="gp-overlay">🔍</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== NOTIFICATIONS ======== -->
+      <div class="db-panel" id="panel-notifications">
+        <div class="panel-title"><span class="ico">🔔</span> Notifications</div>
+        <div class="notif-list">
+          <div class="notif-item unread"><div class="ni-ico">🔔</div><div><div class="ni-title">Electrical work on Floor 2 completed</div><div class="ni-sub">Your supervisor, Vignesh Raja, has confirmed completion of floor 2 wiring and power points.</div><div class="ni-time">2 hours ago</div></div></div>
+          <div class="notif-item unread"><div class="ni-ico">💳</div><div><div class="ni-title">Upcoming payment reminder</div><div class="ni-sub">Installment #5 of ₹8,00,000 is due on 15 July 2026. Please ensure timely payment.</div><div class="ni-time">Yesterday</div></div></div>
+          <div class="notif-item unread"><div class="ni-ico">📸</div><div><div class="ni-title">5 new construction photos added</div><div class="ni-sub">Photos from site inspection on 30 Jun 2026 have been uploaded to your gallery.</div><div class="ni-time">2 days ago</div></div></div>
+          <div class="notif-item"><div class="ni-ico">✅</div><div><div class="ni-title">Request #REQ-0014 approved</div><div class="ni-sub">Your request for additional kitchen cabinet space has been approved by the site team.</div><div class="ni-time">4 days ago</div></div></div>
+          <div class="notif-item"><div class="ni-ico">📅</div><div><div class="ni-title">Site visit confirmed</div><div class="ni-sub">Your site visit on 25 Jun 2026 at 10:00 AM has been confirmed. Please carry your ID.</div><div class="ni-time">1 week ago</div></div></div>
+          <div class="notif-item"><div class="ni-ico">📋</div><div><div class="ni-title">Plumbing milestone cleared</div><div class="ni-sub">Ground floor plumbing work has been completed and inspected. Work moving to first floor.</div><div class="ni-time">2 weeks ago</div></div></div>
+          <div class="notif-item"><div class="ni-ico">💬</div><div><div class="ni-title">New message from Supervisor</div><div class="ni-sub">Vignesh Raja: "Roof slab casting completed successfully. Great progress!"</div><div class="ni-time">3 weeks ago</div></div></div>
+        </div>
+      </div>
+
+      <!-- ======== CHAT ======== -->
+      <div class="db-panel" id="panel-chat">
+        <div class="panel-title"><span class="ico">💬</span> Chat with Team</div>
+        <div class="chat-layout">
+          <div class="chat-sidebar">
+            <div class="chat-sidebar-header">Contacts</div>
+            <div class="chat-contact active" data-contact="supervisor">
+              <div class="cc-av">VR</div>
+              <div>
+                <div class="cc-name">Vignesh Raja</div>
+                <div class="cc-role">Site Supervisor</div>
+                <div class="cc-online">● Online</div>
+              </div>
+            </div>
+            <div class="chat-contact" data-contact="architect">
+              <div class="cc-av">PM</div>
+              <div>
+                <div class="cc-name">Priya Menon</div>
+                <div class="cc-role">Architect</div>
+                <div class="cc-online">● Online</div>
+              </div>
+            </div>
+            <div class="chat-contact" data-contact="support">
+              <div class="cc-av">AC</div>
+              <div>
+                <div class="cc-name">Support Team</div>
+                <div class="cc-role">Customer Support</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="chat-header">
+              <div class="chat-header-info">
+                <div class="chat-status"></div>
+                <div>
+                  <div style="font-weight:700;font-size:14px" id="chatContactName">Vignesh Raja</div>
+                  <div style="font-size:12px;color:var(--text-muted)">Site Supervisor · Online</div>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-ghost" data-panel="book-call">📞 Call</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg-row">
+                <div class="msg-av">VR</div>
+                <div>
+                  <div class="msg-bubble">Good morning! Your floor 2 electrical work was completed yesterday. Everything looks great!</div>
+                  <div class="msg-time">Yesterday 09:14</div>
+                </div>
+              </div>
+              <div class="msg-row me">
+                <div class="msg-av">JD</div>
+                <div>
+                  <div class="msg-bubble">That's great news! Any photos from the site?</div>
+                  <div class="msg-time">Yesterday 09:32</div>
+                </div>
+              </div>
+              <div class="msg-row">
+                <div class="msg-av">VR</div>
+                <div>
+                  <div class="msg-bubble">Yes! I've uploaded 5 new photos to your gallery. You can check them from the Gallery section.</div>
+                  <div class="msg-time">Yesterday 09:35</div>
+                </div>
+              </div>
+              <div class="msg-row me">
+                <div class="msg-av">JD</div>
+                <div>
+                  <div class="msg-bubble">Perfect, thank you! When does the plastering begin?</div>
+                  <div class="msg-time">Yesterday 10:00</div>
+                </div>
+              </div>
+              <div class="msg-row">
+                <div class="msg-av">VR</div>
+                <div>
+                  <div class="msg-bubble">We're planning to start plastering by mid-September, once the remaining plumbing on floor 3 is done. I'll keep you posted!</div>
+                  <div class="msg-time">Yesterday 10:08</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input class="input" id="chatInput" type="text" placeholder="Type your message…" autocomplete="off">
+              <button class="chat-send-btn" id="chatSend" title="Send">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== BOOK CALL ======== -->
+      <div class="db-panel" id="panel-book-call">
+        <div class="panel-title"><span class="ico">📞</span> Book a Call</div>
+        <div class="booking-grid">
+          <div class="db-card">
+            <div class="db-card-header"><h4>📅 Select Date</h4></div>
+            <div class="db-card-body">
+              <div class="cal-month">
+                <button id="callPrevMonth">‹</button>
+                <span id="callMonthLabel"></span>
+                <button id="callNextMonth">›</button>
+              </div>
+              <div class="cal-grid" id="callCalGrid">
+                <div class="cal-day-label">Su</div>
+                <div class="cal-day-label">Mo</div>
+                <div class="cal-day-label">Tu</div>
+                <div class="cal-day-label">We</div>
+                <div class="cal-day-label">Th</div>
+                <div class="cal-day-label">Fr</div>
+                <div class="cal-day-label">Sa</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="db-card" style="margin-bottom:16px">
+              <div class="db-card-header"><h4>⏰ Select Time</h4></div>
+              <div class="db-card-body">
+                <div class="time-slot-grid" id="callTimeGrid">
+                  <div class="time-slot" data-time="09:00 AM">09:00 AM</div>
+                  <div class="time-slot" data-time="10:00 AM">10:00 AM</div>
+                  <div class="time-slot unavailable" data-time="11:00 AM">11:00 AM</div>
+                  <div class="time-slot" data-time="12:00 PM">12:00 PM</div>
+                  <div class="time-slot unavailable" data-time="02:00 PM">02:00 PM</div>
+                  <div class="time-slot" data-time="03:00 PM">03:00 PM</div>
+                  <div class="time-slot" data-time="04:00 PM">04:00 PM</div>
+                  <div class="time-slot" data-time="05:00 PM">05:00 PM</div>
+                  <div class="time-slot unavailable" data-time="06:00 PM">06:00 PM</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="db-card">
+              <div class="db-card-header"><h4>📋 Purpose</h4></div>
+              <div class="db-card-body">
+                <div class="field">
+                  <label for="callPurpose">Call Purpose</label>
+                  <select class="input" id="callPurpose">
+                    <option value="">Select a purpose…</option>
+                    <option>Construction Progress Update</option>
+                    <option>Payment Discussion</option>
+                    <option>Design Modification Request</option>
+                    <option>Site Visit Planning</option>
+                    <option>General Enquiry</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="callNotes">Additional Notes (optional)</label>
+                  <textarea class="input" id="callNotes" placeholder="Any specific questions or topics to discuss…" style="min-height:70px"></textarea>
+                </div>
+                <button class="btn btn-gold btn-block" style="margin-top:14px" id="confirmCallBtn">✅ Confirm Booking</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== SITE VISIT ======== -->
+      <div class="db-panel" id="panel-site-visit">
+        <div class="panel-title"><span class="ico">📅</span> Book Site Visit</div>
+        <div class="booking-grid">
+          <div class="db-card">
+            <div class="db-card-header"><h4>📅 Choose Date</h4></div>
+            <div class="db-card-body">
+              <div class="cal-month">
+                <button id="visitPrevMonth">‹</button>
+                <span id="visitMonthLabel"></span>
+                <button id="visitNextMonth">›</button>
+              </div>
+              <div class="cal-grid" id="visitCalGrid">
+                <div class="cal-day-label">Su</div>
+                <div class="cal-day-label">Mo</div>
+                <div class="cal-day-label">Tu</div>
+                <div class="cal-day-label">We</div>
+                <div class="cal-day-label">Th</div>
+                <div class="cal-day-label">Fr</div>
+                <div class="cal-day-label">Sa</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="db-card" style="margin-bottom:16px">
+              <div class="db-card-header"><h4>⏰ Available Slots</h4></div>
+              <div class="db-card-body">
+                <p class="text-muted text-sm" style="margin-bottom:12px">Select a date to view available visit slots.</p>
+                <div class="time-slot-grid" id="visitTimeGrid">
+                  <div class="time-slot" data-time="09:00 AM">09:00 AM</div>
+                  <div class="time-slot" data-time="10:30 AM">10:30 AM</div>
+                  <div class="time-slot unavailable" data-time="12:00 PM">12:00 PM</div>
+                  <div class="time-slot" data-time="02:00 PM">02:00 PM</div>
+                  <div class="time-slot" data-time="03:30 PM">03:30 PM</div>
+                  <div class="time-slot unavailable" data-time="05:00 PM">05:00 PM</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="db-card">
+              <div class="db-card-header"><h4>📍 Visit Details</h4></div>
+              <div class="db-card-body">
+                <div class="field">
+                  <label>Number of Visitors</label>
+                  <select class="input" id="visitCount">
+                    <option>1 person</option>
+                    <option>2 people</option>
+                    <option>3 people</option>
+                    <option>4 people</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="visitNotes">Special Instructions (optional)</label>
+                  <textarea class="input" id="visitNotes" placeholder="Any accessibility requirements or specific areas to inspect…" style="min-height:70px"></textarea>
+                </div>
+                <button class="btn btn-gold btn-block" style="margin-top:14px" id="confirmVisitBtn">✅ Book Site Visit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== REQUESTS ======== -->
+      <div class="db-panel" id="panel-requests">
+        <div class="panel-title"><span class="ico">📋</span> Raise a Request</div>
+
+        <!-- Request Form -->
+        <div class="request-form-card">
+          <h4>Submit a New Request</h4>
+          <div class="req-category-grid" id="reqCategoryGrid">
+            <div class="req-cat selected" data-cat="Kitchen"><span class="cat-ico">🍳</span>Kitchen</div>
+            <div class="req-cat" data-cat="Electrical"><span class="cat-ico">⚡</span>Electrical</div>
+            <div class="req-cat" data-cat="Interior"><span class="cat-ico">🛋️</span>Interior</div>
+            <div class="req-cat" data-cat="Painting"><span class="cat-ico">🎨</span>Painting</div>
+            <div class="req-cat" data-cat="Plumbing"><span class="cat-ico">🔧</span>Plumbing</div>
+            <div class="req-cat" data-cat="Other"><span class="cat-ico">📝</span>Other</div>
+          </div>
+          <div class="field">
+            <label>Request Title</label>
+            <input class="input" id="reqTitle" type="text" placeholder="Brief title for your request…">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Description</label>
+            <textarea class="input" id="reqDesc" placeholder="Describe your requirement in detail…" style="min-height:80px"></textarea>
+          </div>
+          <button class="btn btn-gold" style="margin-top:14px" id="submitReqBtn">📤 Submit Request</button>
+        </div>
+
+        <!-- Request tracking tabs -->
+        <div class="panel-title" style="margin-top:8px"><span class="ico">📊</span> Track Requests</div>
+        <div class="request-tab-row">
+          <button class="req-tab active" data-req-tab="all">All</button>
+          <button class="req-tab" data-req-tab="pending">Pending</button>
+          <button class="req-tab" data-req-tab="approved">Approved</button>
+          <button class="req-tab" data-req-tab="completed">Completed</button>
+          <button class="req-tab" data-req-tab="rejected">Rejected</button>
+        </div>
+
+        <div id="reqList">
+          <div class="req-card" data-status="completed"><div class="req-info"><div class="req-title">Extra kitchen cabinet space on north wall</div><div class="req-sub">Category: Kitchen</div><div class="req-date">Submitted: 12 Jun 2026</div></div><span class="chip chip-success">Completed</span></div>
+          <div class="req-card" data-status="approved"><div class="req-info"><div class="req-title">Additional power outlets in master bedroom</div><div class="req-sub">Category: Electrical</div><div class="req-date">Submitted: 20 Jun 2026</div></div><span class="chip chip-info">Approved</span></div>
+          <div class="req-card" data-status="pending"><div class="req-info"><div class="req-title">Wooden flooring upgrade in living room</div><div class="req-sub">Category: Interior</div><div class="req-date">Submitted: 28 Jun 2026</div></div><span class="chip chip-warning">Pending</span></div>
+          <div class="req-card" data-status="rejected"><div class="req-info"><div class="req-title">External garage addition</div><div class="req-sub">Category: Other</div><div class="req-date">Submitted: 01 Jun 2026</div></div><span class="chip chip-danger">Rejected</span></div>
+          <div class="req-card" data-status="pending"><div class="req-info"><div class="req-title">Full wall painting — beige color</div><div class="req-sub">Category: Painting</div><div class="req-date">Submitted: 30 Jun 2026</div></div><span class="chip chip-warning">Pending</span></div>
+        </div>
+      </div>
+
+      <!-- ======== PAYMENTS ======== -->
+      <div class="db-panel" id="panel-payments">
+        <div class="panel-title"><span class="ico">💳</span> Payment Summary</div>
+
+        <div class="pay-summary">
+          <div class="pay-card">
+            <div class="pay-label">Total Project Cost</div>
+            <div class="pay-amount">₹75,00,000</div>
+            <div class="pay-sub">Villa Unit — ACV-2345</div>
+          </div>
+          <div class="pay-card">
+            <div class="pay-label">Amount Paid</div>
+            <div class="pay-amount">₹48,00,000</div>
+            <div class="pay-sub">4 installments completed</div>
+          </div>
+          <div class="pay-card upcoming">
+            <div class="pay-label">Next Installment</div>
+            <div class="pay-amount">₹8,00,000</div>
+            <div class="pay-sub">Due: 15 July 2026</div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="db-card" style="margin-bottom:24px">
+          <div class="db-card-body">
+            <div class="progress-label" style="margin-bottom:9px"><span style="font-weight:700">Payment Progress</span><strong>64% Paid</strong></div>
+            <div class="progress-bar" style="height:14px"><div class="progress-fill green" style="width:64%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:8px">
+              <span>₹48,00,000 paid</span><span>₹27,00,000 remaining</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- History table -->
+        <div class="db-card">
+          <div class="db-card-header"><h4>📊 Payment History</h4></div>
+          <div class="db-card-body" style="padding:0;overflow-x:auto">
+            <table class="pay-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Booking Amount</td><td>Jan 2026</td><td>₹7,50,000</td><td>NEFT</td><td><span class="chip chip-success">Paid</span></td></tr>
+                <tr><td>2</td><td>Foundation Milestone</td><td>Feb 2026</td><td>₹15,00,000</td><td>Cheque</td><td><span class="chip chip-success">Paid</span></td></tr>
+                <tr><td>3</td><td>Structure Completion</td><td>Apr 2026</td><td>₹12,50,000</td><td>NEFT</td><td><span class="chip chip-success">Paid</span></td></tr>
+                <tr><td>4</td><td>Brickwork & Roofing</td><td>Jun 2026</td><td>₹13,00,000</td><td>UPI</td><td><span class="chip chip-success">Paid</span></td></tr>
+                <tr><td>5</td><td>Electrical & Plumbing</td><td>15 Jul 2026</td><td>₹8,00,000</td><td>—</td><td><span class="chip chip-warning">Due</span></td></tr>
+                <tr><td>6</td><td>Plastering & Painting</td><td>Oct 2026</td><td>₹10,00,000</td><td>—</td><td><span class="chip" style="background:#f4f6fa;color:#9aa2b1">Upcoming</span></td></tr>
+                <tr><td>7</td><td>Handover Balance</td><td>Mar 2027</td><td>₹9,00,000</td><td>—</td><td><span class="chip" style="background:#f4f6fa;color:#9aa2b1">Upcoming</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== DOCUMENTS ======== -->
+      <div class="db-panel" id="panel-documents">
+        <div class="panel-title"><span class="ico">📂</span> My Documents</div>
+        <div class="doc-grid">
+          <div class="doc-card">
+            <div class="doc-ico pdf">📄</div>
+            <div>
+              <div class="doc-name">Sale Agreement</div>
+              <div class="doc-meta">PDF · 2.4 MB · Signed 12 Jan 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Sale Agreement…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico img">🗺️</div>
+            <div>
+              <div class="doc-name">Approved Blueprint</div>
+              <div class="doc-meta">PDF · 8.7 MB · Issued 15 Jan 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Blueprint…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico pdf">🧾</div>
+            <div>
+              <div class="doc-name">Payment Receipt #1</div>
+              <div class="doc-meta">PDF · 0.3 MB · 20 Jan 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Receipt #1…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico pdf">🧾</div>
+            <div>
+              <div class="doc-name">Payment Receipt #2</div>
+              <div class="doc-meta">PDF · 0.3 MB · 10 Feb 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Receipt #2…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico pdf">🧾</div>
+            <div>
+              <div class="doc-name">Payment Receipt #3</div>
+              <div class="doc-meta">PDF · 0.3 MB · 05 Apr 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Receipt #3…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico pdf">🧾</div>
+            <div>
+              <div class="doc-name">Payment Receipt #4</div>
+              <div class="doc-meta">PDF · 0.3 MB · 15 Jun 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Receipt #4…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico docx">🏡</div>
+            <div>
+              <div class="doc-name">Structural Warranty</div>
+              <div class="doc-meta">PDF · 1.1 MB · Valid till 2036</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Warranty…','success','📥')">📥</button>
+          </div>
+          <div class="doc-card">
+            <div class="doc-ico docx">📋</div>
+            <div>
+              <div class="doc-name">Construction Schedule</div>
+              <div class="doc-meta">PDF · 0.6 MB · Updated Jul 2026</div>
+            </div>
+            <button class="doc-download" onclick="showToast('Downloading Schedule…','success','📥')">📥</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== EXPLORE PROJECTS ======== -->
+      <div class="db-panel" id="panel-explore">
+        <div class="panel-title"><span class="ico">🏗️</span> Explore Projects</div>
+        <div class="explore-grid">
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&q=80" alt="Arthi Skyline Towers"></div>
+            <div class="exp-info">
+              <h4>Arthi Skyline Towers</h4>
+              <div class="meta">🏢 Premium Apartments</div>
+              <div class="meta">📍 Kakkanad, Kochi, Kerala</div>
+              <div class="meta">💰 From ₹72L</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-info">Ongoing</span>
+                <a href="project-details.html?id=arthi-skyline-towers" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=700&q=80" alt="Arthi Palm Villas"></div>
+            <div class="exp-info">
+              <h4>Arthi Palm Villas</h4>
+              <div class="meta">🏡 Luxury Villas</div>
+              <div class="meta">📍 Edapally, Kochi, Kerala</div>
+              <div class="meta">💰 From ₹1.85Cr</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-warning">Upcoming</span>
+                <a href="project-details.html?id=arthi-palm-villas" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=700&q=80" alt="Arthi Marine Heights"></div>
+            <div class="exp-info">
+              <h4>Arthi Marine Heights</h4>
+              <div class="meta">🌊 Sea-View Apartments</div>
+              <div class="meta">📍 Beach Road, Kozhikode, Kerala</div>
+              <div class="meta">💰 From ₹58L</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-info">Ongoing</span>
+                <a href="project-details.html?id=arthi-marine-heights" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=700&q=80" alt="Arthi Royal Enclave"></div>
+            <div class="exp-info">
+              <h4>Arthi Royal Enclave</h4>
+              <div class="meta">🏠 Premium Villas</div>
+              <div class="meta">📍 Calicut University Rd, Kozhikode</div>
+              <div class="meta">💰 From ₹95L (Resale)</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-success">Completed</span>
+                <a href="project-details.html?id=arthi-royal-enclave" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=700&q=80" alt="Arthi Green Meadows"></div>
+            <div class="exp-info">
+              <h4>Arthi Green Meadows</h4>
+              <div class="meta">🌿 Eco-Friendly Apartments</div>
+              <div class="meta">📍 Thrikkakara, Kochi, Kerala</div>
+              <div class="meta">💰 From ₹62L</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-warning">Upcoming</span>
+                <a href="project-details.html?id=arthi-green-meadows" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+          <div class="exp-card">
+            <div class="exp-thumb"><img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=700&q=80" alt="Arthi Harbour View"></div>
+            <div class="exp-info">
+              <h4>Arthi Harbour View</h4>
+              <div class="meta">🌊 Ultra-Luxury Residences</div>
+              <div class="meta">📍 Marine Drive, Kochi, Kerala</div>
+              <div class="meta">💰 From ₹1.45Cr (Resale)</div>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="chip chip-success">Completed</span>
+                <a href="project-details.html?id=arthi-harbour-view" class="btn btn-sm btn-gold" style="text-decoration:none">View Details →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== ROOM SIMULATOR ======== -->
+      <div class="db-panel" id="panel-simulator">
+        <div class="sim-promo">
+          <div class="sim-icon">🛋️</div>
+          <h3>Room Simulator</h3>
+          <p>Design your dream interior! Drag and drop furniture, change flooring, pick wall colors, and preview your perfect living space — all before construction is done.</p>
+          <a href="simulator.html" class="btn btn-gold" style="font-size:16px;padding:14px 32px">🚀 Launch Room Simulator</a>
+        </div>
+      </div>
+
+    </div><!-- end .db-content -->
+  </div><!-- end .db-main -->
+</div><!-- end .db-shell -->
+
+<!-- ---- BOOK CALL CONFIRMATION MODAL ---- -->
+<div class="modal-overlay" id="callConfirmModal">
+  <div class="modal">
+    <div class="modal-header"><h3>Booking Confirmed</h3><button class="modal-close" data-close-modal="callConfirmModal">✕</button></div>
+    <div class="modal-body">
+      <div class="confirm-popup">
+        <div class="success-ico">📞</div>
+        <h4>Call Scheduled!</h4>
+        <p id="callConfirmText">Your call has been scheduled. Our team will call you at the selected time.</p>
+        <button class="btn btn-gold btn-block" data-close-modal="callConfirmModal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ---- SITE VISIT CONFIRMATION MODAL ---- -->
+<div class="modal-overlay" id="visitConfirmModal">
+  <div class="modal">
+    <div class="modal-header"><h3>Visit Confirmed</h3><button class="modal-close" data-close-modal="visitConfirmModal">✕</button></div>
+    <div class="modal-body">
+      <div class="confirm-popup">
+        <div class="success-ico">🏗️</div>
+        <h4>Site Visit Booked!</h4>
+        <p id="visitConfirmText">Your site visit has been booked. Please carry a valid photo ID on the day of your visit.</p>
+        <button class="btn btn-gold btn-block" data-close-modal="visitConfirmModal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ---- REQUEST SUBMITTED MODAL ---- -->
+<div class="modal-overlay" id="reqConfirmModal">
+  <div class="modal">
+    <div class="modal-header"><h3>Request Submitted</h3><button class="modal-close" data-close-modal="reqConfirmModal">✕</button></div>
+    <div class="modal-body">
+      <div class="confirm-popup">
+        <div class="success-ico">✅</div>
+        <h4>Request Received!</h4>
+        <p>Your request has been submitted. Our team will review it and update the status within 2–3 working days.</p>
+        <button class="btn btn-gold btn-block" data-close-modal="reqConfirmModal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/toast.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
