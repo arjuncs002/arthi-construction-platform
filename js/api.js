@@ -44,6 +44,12 @@ const API = {
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('arthi_session');
+        localStorage.removeItem('arthi_profile');
+        window.location.href = 'index.html';
+        return new Promise(() => {}); // prevent further execution downstream
+      }
       const data = await response.json();
       
       if (!response.ok) {
