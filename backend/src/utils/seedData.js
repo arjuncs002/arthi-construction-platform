@@ -3,15 +3,15 @@ const prisma = require('../config/db');
 
 const seedDatabase = async () => {
   try {
-    const userCount = await prisma.user.count();
+    const projectCount = await prisma.project.count();
     const shouldForce = process.env.FORCE_SEED === 'true';
-    if (userCount > 0 && !shouldForce) {
-      console.log('🌱 Database already has users. Skipping auto-seeding.');
+    if (projectCount > 0 && !shouldForce) {
+      console.log('🌱 Database already has projects. Skipping auto-seeding.');
       return;
     }
 
-    if (shouldForce) {
-      console.log('🗑️ FORCE_SEED is true. Wiping database tables...');
+    if (shouldForce || projectCount === 0) {
+      console.log('🗑️ Wiping database tables to ensure clean seeding...');
       await prisma.qRCode.deleteMany();
       await prisma.notification.deleteMany();
       await prisma.message.deleteMany();
