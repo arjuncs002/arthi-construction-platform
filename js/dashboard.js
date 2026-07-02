@@ -496,15 +496,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Mock conversations state
+  const mockConversations = {
+    architect: [
+      { content: 'Hello Jenson, I am reviewing the kitchen layout design.', isMe: false, avatar: 'AR', timestamp: new Date(Date.now() - 3 * 3600000) },
+      { content: 'Hi, are we using the premium granite option for the countertops?', isMe: true, avatar: 'JS', timestamp: new Date(Date.now() - 2.5 * 3600000) },
+      { content: 'Yes, the blueprint specifies Black Galaxy granite. I will send you the 3D renders tomorrow.', isMe: false, avatar: 'AR', timestamp: new Date(Date.now() - 2 * 3600000) }
+    ],
+    support: [
+      { content: 'Welcome to Arthi Helpdesk. How can we assist you with Skyline Villas today?', isMe: false, avatar: 'SP', timestamp: new Date(Date.now() - 5 * 3600000) },
+      { content: 'I have a query regarding my receipt for Payment Milestone #3.', isMe: true, avatar: 'JS', timestamp: new Date(Date.now() - 4.5 * 3600000) },
+      { content: 'Let me fetch that for you. Yes, it was processed successfully. Receipt is available under your Documents tab.', isMe: false, avatar: 'SP', timestamp: new Date(Date.now() - 4 * 3600000) }
+    ]
+  };
+
   async function loadChat() {
     if (!profile.projectId) return;
 
-    // Only load if supervisor contact is selected (other contacts remain static mock)
     const activeContact = document.querySelector('.chat-contact.active');
     const isRealChat = activeContact && activeContact.getAttribute('data-contact') === 'supervisor';
 
     if (!isRealChat) {
-      // Mock messages for non-supervisor tabs
+      const type = activeContact ? activeContact.getAttribute('data-contact') : 'architect';
+      chatMessages.innerHTML = '';
+      const msgs = mockConversations[type] || [];
+      msgs.forEach(msg => {
+        appendMessageUI(msg.content, msg.isMe, msg.avatar, msg.timestamp);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
       return;
     }
 
@@ -574,18 +593,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast('Failed to send message', 'error');
       }
     } else {
-      // Handle fallback mock chat auto-reply
+      const contactType = activeContact.getAttribute('data-contact');
+      if (!mockConversations[contactType]) mockConversations[contactType] = [];
+      
+      // Save client message locally
+      mockConversations[contactType].push({
+        content: text,
+        isMe: true,
+        avatar: profile.avatar || 'JS',
+        timestamp: new Date()
+      });
+      
       appendMessageUI(text, true, profile.avatar || 'JS');
       chatInput.value = '';
+      
+      // Trigger a professional auto-reply simulation
       setTimeout(() => {
-        const mockReplies = [
-          'Got it! We will look into that and update you shortly.',
-          'Understood. Let me check with the site operations team.',
-          'Noted! I will escalate this modification request.'
-        ];
-        const reply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
-        appendMessageUI(reply, false, activeContact.querySelector('.cc-av').textContent);
-      }, 1000);
+        const mockReplies = {
+          architect: [
+            'I will update the layout blueprints to reflect these changes.',
+            'Let me check the plumbing layout diagram for that.',
+            'We will use premium vitrified tiles for the utility area.'
+          ],
+          support: [
+            'Your ticket has been logged and assigned to our billing desk.',
+            'Please email the transaction reference to accounts@arthiconstructions.com.',
+            'Our service engineer will contact you shortly.'
+          ]
+        };
+        const replies = mockReplies[contactType] || ['Noted.'];
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        
+        mockConversations[contactType].push({
+          content: reply,
+          isMe: false,
+          avatar: contactType === 'architect' ? 'AR' : 'SP',
+          timestamp: new Date()
+        });
+        appendMessageUI(reply, false, contactType === 'architect' ? 'AR' : 'SP');
+      }, 1200);
     }
   }
 

@@ -301,19 +301,27 @@
       <h2 style="font-size:20px; font-weight:700; margin-bottom:6px; color:#1a2a4a;">Client Chat</h2>
       <p style="font-size:14px; color:#888; margin-bottom:20px;">Select a project to open the chat with the client.</p>
 
-      <div style="display:grid; grid-template-columns: 220px 1fr; gap:20px; height: calc(100vh - 200px);">
+      <div style="display:grid; grid-template-columns: 280px 1fr; gap:20px; height: calc(100vh - 200px);">
         <!-- Contact list -->
-        <div style="background:#fff; border-radius:12px; border:1px solid #eef0f5; overflow-y:auto;">
+        <div style="background:#fff; border-radius:12px; border:1px solid #eef0f5; display:flex; flex-direction:column; overflow:hidden;">
           <div style="padding:12px 14px; font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid #eef0f5;">CLIENTS</div>
-          <div id="chatClientList"></div>
+          <div style="padding: 10px 12px; border-bottom: 1px solid #eef0f5;">
+            <input type="text" id="contactSearch" placeholder="Search clients or projects..." style="width:100%; box-sizing:border-box; border:1px solid #dde; border-radius:8px; padding:8px 10px; font-size:13px; outline:none; font-family:'Inter', sans-serif;">
+          </div>
+          <div id="chatClientList" style="flex:1; overflow-y:auto;"></div>
         </div>
         <!-- Chat window -->
         <div style="background:#fff; border-radius:12px; border:1px solid #eef0f5; display:flex; flex-direction:column; overflow:hidden;">
-          <div style="padding:14px 18px; border-bottom:1px solid #eef0f5; display:flex; align-items:center; gap:12px;">
-            <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0a1628,#1a2a4a); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;" id="chatClientAv">–</div>
-            <div>
-              <div style="font-size:14px; font-weight:700; color:#1a2a4a;" id="chatClientName">Select a client</div>
-              <div style="font-size:12px; color:var(--gold);" id="chatProjectName">–</div>
+          <div style="padding:14px 18px; border-bottom:1px solid #eef0f5; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0a1628,#1a2a4a); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;" id="chatClientAv">–</div>
+              <div>
+                <div style="font-size:14px; font-weight:700; color:#1a2a4a;" id="chatClientName">Select a client</div>
+                <div style="font-size:12px; color:var(--gold);" id="chatProjectName">–</div>
+              </div>
+            </div>
+            <div style="position:relative; width:180px;">
+              <input type="text" id="msgSearch" placeholder="Search messages..." style="width:100%; box-sizing:border-box; border:1px solid #dde; border-radius:8px; padding:6px 10px; font-size:12px; outline:none; font-family:'Inter', sans-serif;">
             </div>
           </div>
           <div style="flex:1; overflow-y:auto; padding:16px; background:#f8f9fb; display:flex; flex-direction:column; gap:10px;" id="chatMessages">
@@ -1023,7 +1031,82 @@ function initChatPanel() {
   }
 }
 
+async function selectChatClient(userId, clientId, name, avatar, projectId, projectName) {
+  chatClientUserId = userId;
+  chatClientId = clientId;
+  chatProjectId = projectId;
+  
+  // Highlight active contact
+  document.querySelectorAll('.chat-contact-item').forEach(item => {
+    item.style.background = '';
+    const itemPid = parseInt(item.getAttribute('data-pid'));
+    const itemUid = parseInt(item.getAttribute('data-uid'));
+    if (itemPid === projectId && itemUid === userId) {
+      item.style.background = '#f0f4f8';
+    }
+  });
 
+  // Update chat header details
+  document.getElementById('chatClientAv').textContent = avatar || name.slice(0, 2);
+  document.getElementById('chatClientName').textContent = name;
+  document.getElementById('chatProjectName').textContent = projectName;
+
+  // Clear unreads for this project
+  projectUnreads[projectId] = 0;
+  
+  // Recalculate total unreadCount
+  unreadCount = Object.values(projectUnreads).reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('chatUnreadBadge');
+  if (badge) {
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  updateContactBadges();
+  lastMessageCount = 0; // force re-render
+  await loadChatMessages(false);
+}
+
+async function loadChatMessages(isPoll = false) {
+  if (!chatProjectId) return;
+  try {
+    const messages = await api(`/chat/messages/${chatProjectId}`);
+    
+    // Update local preview and count
+    if (messages.length > 0) {
+      latestMessages[chatProjectId] = messages[messages.length - 1].content;
+    }
+    localMessageCount[chatProjectId] = messages.length;
+
+    // Only update UI if count changed or it's not a poll
+    if (isPoll && messages.length === lastMessageCount) return;
+    lastMessageCount = messages.length;
+
+    const box = document.getElementById('chatMessages');
+    box.innerHTML = '';
+    
+    if (messages.length === 0) {
+      box.innerHTML = '<div class="empty-state"><div class="ico">💬</div><p>No messages yet. Say hello!</p></div>';
+      return;
+    }
+
+    messages.forEach(msg => {
+      const isMe = msg.senderId === PROFILE.id;
+      appendMessage(
+        msg.content, 
+        isMe, 
+        msg.sender?.avatar || msg.sender?.name?.slice(0, 2) || (isMe ? 'VR' : 'CL'), 
+        msg.timestamp
+      );
+    });
+  } catch (err) {
+    console.error('Failed to load chat messages:', err);
+  }
+}
 
 function appendMessage(text, isMe, avatar, timestamp) {
   const box = document.getElementById('chatMessages');
@@ -1126,6 +1209,42 @@ async function handleFabUpload(event) {
     toast('Upload failed: ' + err.message, 'error');
   }
 }
+
+// ════════════════════════════════════════
+// SEARCH LISTENERS
+// ════════════════════════════════════════
+document.getElementById('contactSearch').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.chat-contact-item').forEach(item => {
+    const name = item.querySelector('span').textContent.toLowerCase();
+    const proj = item.querySelector('.chat-contact-item div div:nth-child(2)').textContent.toLowerCase();
+    if (name.includes(query) || proj.includes(query)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+});
+
+document.getElementById('msgSearch').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('#chatMessages .msg-row').forEach(row => {
+    const bubble = row.querySelector('.msg-bubble');
+    if (!bubble) return;
+    const text = bubble.textContent.toLowerCase();
+    if (!query) {
+      bubble.style.background = '';
+      bubble.style.color = '';
+      row.style.display = 'flex';
+    } else if (text.includes(query)) {
+      bubble.style.background = '#ffeaa7';
+      bubble.style.color = '#2d3436';
+      row.style.display = 'flex';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+});
 
 loadProjects().then(() => {
   // Init global socket only AFTER projects are loaded
