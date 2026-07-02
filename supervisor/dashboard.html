@@ -498,18 +498,22 @@ async function loadProjects() {
     // Stats
     document.getElementById('stat-projects').textContent = allProjects.length;
 
-    // Count pending requests and upcoming visits across all projects
+    // Count pending requests and upcoming visits across all projects concurrently
     let totalPending = 0, totalVisits = 0, totalPhotos = 0;
-    for (const p of allProjects) {
+    
+    await Promise.all(allProjects.map(async (p) => {
       try {
-        const reqs = await api(`/requests/${p.id}`);
+        const [reqs, visits, gallery] = await Promise.all([
+          api(`/requests/${p.id}`),
+          api(`/visits/${p.id}`),
+          api(`/updates/gallery/${p.id}`)
+        ]);
         totalPending += reqs.filter(r => r.status === 'PENDING').length;
-        const visits = await api(`/visits/${p.id}`);
         totalVisits += visits.filter(v => v.status === 'PENDING' || v.status === 'CONFIRMED').length;
-        const gallery = await api(`/updates/gallery/${p.id}`);
         totalPhotos += gallery.length;
       } catch (_) {}
-    }
+    }));
+
     document.getElementById('stat-requests').textContent = totalPending;
     document.getElementById('stat-visits').textContent = totalVisits;
     document.getElementById('stat-photos').textContent = totalPhotos;
