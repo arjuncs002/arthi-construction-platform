@@ -416,7 +416,7 @@
 // ════════════════════════════════════════
 const TOKEN = localStorage.getItem('supervisor_token');
 const PROFILE = JSON.parse(localStorage.getItem('supervisor_profile') || '{}');
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://arthi-backend-xrsh.onrender.com/api';
 
 if (!TOKEN || PROFILE.role !== 'SUPERVISOR') {
   window.location.href = 'index.html';
@@ -983,7 +983,7 @@ document.getElementById('chatInput').addEventListener('keydown', e => {
 
 function initSocket(projectId) {
   if (socket) socket.disconnect();
-  socket = io('http://localhost:5000');
+  socket = io('https://arthi-backend-xrsh.onrender.com');
   socket.emit('join_project', { projectId, userId: PROFILE.id, role: 'SUPERVISOR' });
   socket.on('message:receive', msg => {
     if (msg.senderId !== PROFILE.id && chatProjectId === projectId) {

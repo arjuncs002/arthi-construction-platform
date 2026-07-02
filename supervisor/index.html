@@ -155,6 +155,8 @@
   </div>
 
   <script>
+    const API_BASE = 'https://arthi-backend-xrsh.onrender.com/api';
+
     document.getElementById('togglePass').addEventListener('click', () => {
       const pw = document.getElementById('password');
       const btn = document.getElementById('togglePass');
@@ -175,7 +177,7 @@
       btnText.textContent = 'Signing in...';
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/login', {
+        const res = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })

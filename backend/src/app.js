@@ -7,8 +7,26 @@ dotenv.config();
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// CORS — allow Vercel deployments, local file:// and any custom FRONTEND_URL
+const allowedOrigins = [
+  /\.vercel\.app$/,
+  /^null$/, // file:// pages send Origin: null
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
+    if (!origin) return callback(null, true);
+    const allowed =
+      allowedOrigins.some(rule =>
+        rule instanceof RegExp ? rule.test(origin) : rule === origin
+      );
+    if (allowed) return callback(null, true);
+    callback(new Error(`CORS policy blocked: ${origin}`));
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
