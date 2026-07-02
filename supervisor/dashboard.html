@@ -262,7 +262,7 @@
     </div>
     <nav class="sb-nav">
       <button class="sb-item active" data-panel="projects"><span class="ico">🏗️</span> My Projects</button>
-      <button class="sb-item" data-panel="chat"><span class="ico">💬</span> Client Chat</button>
+      <button class="sb-item" data-panel="chat"><span class="ico">💬</span> Client Chat <span id="chatUnreadBadge" style="display:none; margin-left:auto; background:#dc2626; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:2px 7px; min-width:18px; text-align:center;">0</span></button>
     </nav>
     <div class="sb-footer">
       <div style="font-size:12px; color:rgba(255,255,255,0.4); padding: 8px 16px 4px;" id="supNameSb">Supervisor</div>
@@ -841,6 +841,61 @@ async function submitOverallProgress() {
 let chatClientUserId = null;
 let chatProjectId = null;
 let socket = null;
+let unreadCount = 0;
+let projectUnreads = {}; // projectId -> count
+
+// ════════════════════════════════════════
+// GLOBAL SOCKET — join all project rooms immediately on load
+// so supervisor receives messages without opening the Chat panel
+// ════════════════════════════════════════
+function initGlobalSocket() {
+  if (socket) socket.disconnect();
+  socket = io('https://arthi-backend-xrsh.onrender.com');
+
+  // Join every assigned project room so no message is missed
+  allProjects.forEach(p => {
+    socket.emit('join_project', { projectId: p.id, userId: PROFILE.id, role: 'SUPERVISOR' });
+  });
+
+  socket.on('message:receive', msg => {
+    // Ignore messages sent by the supervisor themselves
+    if (msg.senderId === PROFILE.id) return;
+
+    // If supervisor is currently viewing this project's chat → append live
+    if (chatProjectId === msg.projectId) {
+      appendMessage(msg.content, false, msg.sender?.avatar || msg.sender?.name?.slice(0,2) || 'CL', msg.timestamp);
+      return;
+    }
+
+    // Otherwise increment unread badge
+    unreadCount++;
+    const badge = document.getElementById('chatUnreadBadge');
+    if (badge) { badge.textContent = unreadCount; badge.style.display = 'inline-flex'; }
+
+    // Increment per-project unread count
+    projectUnreads[msg.projectId] = (projectUnreads[msg.projectId] || 0) + 1;
+    updateContactBadges();
+  });
+}
+
+function updateContactBadges() {
+  document.querySelectorAll('.chat-contact-item').forEach(item => {
+    const pid = parseInt(item.getAttribute('data-pid'));
+    
+    // Remove existing badge if any
+    const existing = item.querySelector('.contact-unread-badge');
+    if (existing) existing.remove();
+
+    const count = projectUnreads[pid] || 0;
+    if (count > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'contact-unread-badge';
+      badge.style.cssText = 'margin-left:auto; background:#16a34a; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:2px 6px; min-width:14px; text-align:center;';
+      badge.textContent = count;
+      item.appendChild(badge);
+    }
+  });
+}
 
 function initChatPanel() {
   // Build client contact list from all projects
@@ -857,16 +912,21 @@ function initChatPanel() {
     return;
   }
 
-  list.innerHTML = clients.map(c => `
-    <div class="chat-contact-item" data-uid="${c.userId}" data-pid="${c.projectId}" onclick="selectChatClient(${c.userId}, '${c.name}', '${c.avatar}', ${c.projectId}, '${c.projectName}')"
-      style="display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; border-bottom:1px solid #f0f0f5; transition:background 0.15s;">
-      <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0a1628,#1a2a4a); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${c.avatar}</div>
-      <div>
-        <div style="font-size:14px; font-weight:600; color:#1a2a4a;">${c.name}</div>
-        <div style="font-size:11px; color:#888;">${c.projectName}</div>
+  list.innerHTML = clients.map(c => {
+    const count = projectUnreads[c.projectId] || 0;
+    const badgeHtml = count > 0 ? `<span class="contact-unread-badge" style="margin-left:auto; background:#16a34a; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:2px 6px; min-width:14px; text-align:center;">${count}</span>` : '';
+    return `
+      <div class="chat-contact-item" data-uid="${c.userId}" data-pid="${c.projectId}" onclick="selectChatClient(${c.userId}, '${c.name}', '${c.avatar}', ${c.projectId}, '${c.projectName}')"
+        style="display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; border-bottom:1px solid #f0f0f5; transition:background 0.15s;">
+        <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0a1628,#1a2a4a); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${c.avatar}</div>
+        <div>
+          <div style="font-size:14px; font-weight:600; color:#1a2a4a;">${c.name}</div>
+          <div style="font-size:11px; color:#888;">${c.projectName}</div>
+        </div>
+        ${badgeHtml}
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   // Auto-select first client
   if (clients.length > 0) {
@@ -894,6 +954,22 @@ function openChatWithClient(userId, name, projectId) {
 async function selectChatClient(userId, name, avatar, projectId, projectName) {
   chatClientUserId = userId;
   chatProjectId = projectId;
+
+  // Clear this project's unread counts when opening the chat
+  const clearedCount = projectUnreads[projectId] || 0;
+  projectUnreads[projectId] = 0;
+  unreadCount = Math.max(0, unreadCount - clearedCount);
+
+  const badge = document.getElementById('chatUnreadBadge');
+  if (badge) {
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  updateContactBadges();
 
   document.querySelectorAll('.chat-contact-item').forEach(el => el.style.background = '');
   const item = document.querySelector(`.chat-contact-item[data-uid="${userId}"]`);
@@ -964,8 +1040,10 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text || !chatProjectId) return;
 
+  // Build URL with clientId so backend targets the correct client
+  const clientParam = chatClientUserId ? `?clientId=${chatClientUserId}` : '';
   try {
-    const msg = await api(`/chat/messages/${chatProjectId}`, {
+    const msg = await api(`/chat/messages/${chatProjectId}${clientParam}`, {
       method: 'POST',
       body: JSON.stringify({ content: text })
     });
@@ -982,14 +1060,9 @@ document.getElementById('chatInput').addEventListener('keydown', e => {
 });
 
 function initSocket(projectId) {
-  if (socket) socket.disconnect();
-  socket = io('https://arthi-backend-xrsh.onrender.com');
-  socket.emit('join_project', { projectId, userId: PROFILE.id, role: 'SUPERVISOR' });
-  socket.on('message:receive', msg => {
-    if (msg.senderId !== PROFILE.id && chatProjectId === projectId) {
-      appendMessage(msg.content, false, msg.sender?.avatar || 'JS', msg.timestamp);
-    }
-  });
+  // No-op: global socket already handles all rooms.
+  // Simply update chatProjectId so incoming messages route correctly.
+  chatProjectId = projectId;
 }
 
 // ════════════════════════════════════════
@@ -1035,10 +1108,11 @@ async function handleFabUpload(event) {
   }
 }
 
-// ════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════
-loadProjects();
+loadProjects().then(() => {
+  // Init global socket only AFTER projects are loaded
+  // so we know which rooms to join
+  initGlobalSocket();
+});
 </script>
 
 <!-- Floating Camera Button -->
