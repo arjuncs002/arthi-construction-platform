@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Connect Socket.IO
   let socket = null;
   if (window.io && profile.projectId) {
-    socket = io('https://arthi-backend-xrsh.onrender.com');
+    socket = io('https://arthi-backend-xrsh.onrender.com', { transports: ['websocket', 'polling'] });
     socket.emit('join_project', {
       projectId: profile.projectId,
       userId: profile.id,

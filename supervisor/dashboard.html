@@ -6,8 +6,8 @@
   <title>Supervisor Dashboard – Arthi Constructions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
   <style>
     :root {
       --gold: #d4a24c;
@@ -291,6 +291,9 @@
       </div>
 
       <h2 style="font-size:20px; font-weight:700; margin-bottom:20px; color:#1a2a4a;">Projects Under Supervision</h2>
+      <div id="backendWakeup" style="background:#fffbe6; border:1px solid #f0d060; border-radius:10px; padding:12px 16px; margin-bottom:14px; font-size:13px; color:#7a5f00; display:none;">
+        ⏳ <b>Backend is waking up</b> — Render free tier sleeps after inactivity. This may take up to 30 seconds on first load. Please wait...
+      </div>
       <div class="sup-grid" id="projectsList">
         <div style="grid-column: span 3; text-align:center; padding:40px; color:#aaa;">Loading projects...</div>
       </div>
@@ -477,16 +480,29 @@ function logout() {
 // ════════════════════════════════════════
 async function api(endpoint, options = {}) {
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}`, ...options.headers };
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-  if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem('supervisor_token');
-    localStorage.removeItem('supervisor_profile');
-    window.location.href = 'index.html';
-    return new Promise(() => {});
+  
+  // 35-second timeout to handle Render cold start
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 35000);
+  
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers, signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem('supervisor_token');
+      localStorage.removeItem('supervisor_profile');
+      window.location.href = 'index.html';
+      return new Promise(() => {});
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+    return data;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') throw new Error('Request timed out (35s). Backend may be waking up — please try again.');
+    throw err;
   }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Error');
-  return data;
 }
 
 // ════════════════════════════════════════
@@ -497,8 +513,15 @@ let currentProjectId = null;
 let currentClientId = null;
 
 async function loadProjects() {
+  // Show wake-up banner after 4 seconds if still loading
+  const wakeupBanner = document.getElementById('backendWakeup');
+  const wakeupTimer = setTimeout(() => { if (wakeupBanner) wakeupBanner.style.display = 'block'; }, 4000);
+  
   try {
     const data = await api('/projects/assigned');
+    clearTimeout(wakeupTimer);
+    if (wakeupBanner) wakeupBanner.style.display = 'none';
+    
     allProjects = Array.isArray(data) ? data : (data.projects || []);
 
     // Stats
@@ -526,8 +549,16 @@ async function loadProjects() {
 
     renderProjects(allProjects);
   } catch (err) {
-    console.error(err);
-    document.getElementById('projectsList').innerHTML = `<div class="empty-state"><div class="ico">⚠️</div><p>Failed to load projects. Is the backend server running?</p></div>`;
+    clearTimeout(wakeupTimer);
+    if (wakeupBanner) wakeupBanner.style.display = 'none';
+    console.error('loadProjects error:', err);
+    document.getElementById('projectsList').innerHTML = `
+      <div class="empty-state" style="grid-column:span 3;">
+        <div class="ico">⚠️</div>
+        <p style="font-weight:600; color:#dc2626;">Failed to load projects</p>
+        <p style="font-size:12px; color:#888; margin-top:6px;">${err.message}</p>
+        <button onclick="loadProjects()" style="margin-top:12px; background:#0a1628; color:#fff; border:none; border-radius:8px; padding:10px 20px; cursor:pointer; font-size:13px;">🔄 Retry</button>
+      </div>`;
   }
 }
 
@@ -870,7 +901,7 @@ let lastMessageCount = 0;
 // ════════════════════════════════════════
 function initGlobalSocket() {
   if (socket) socket.disconnect();
-  socket = io('https://arthi-backend-xrsh.onrender.com');
+  socket = io('https://arthi-backend-xrsh.onrender.com', { transports: ['websocket', 'polling'] });
 
   // Join every assigned project room so no message is missed
   allProjects.forEach(p => {
