@@ -851,7 +851,8 @@ async function submitProgressUpdate() {
   const note = document.getElementById('upNote').value.trim();
   if (!stage || isNaN(pct)) { toast('Please fill in stage and percentage', 'error'); return; }
   if (!currentProjectId) return;
-await api(`/updates/${currentProjectId}`, {
+  try {
+    await api(`/updates/${currentProjectId}`, {
       method: 'POST',
       body: JSON.stringify({ stage, percentage: pct, note })
     });
